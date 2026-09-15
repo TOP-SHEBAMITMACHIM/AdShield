@@ -30,4 +30,12 @@ object EngineState {
 
     /** True while MainActivity is on screen; the blocked-ad message stays quiet then. */
     val appVisible = MutableStateFlow(false)
+
+    /** A released build newer than this one, once a check has found one. */
+    val availableUpdate = MutableStateFlow<UpdateInfo?>(null)
+    val updateChecked = MutableStateFlow(false)
+
+    /** 0f..1f while a download runs, -1f when nothing is downloading. */
+    val updateProgress = MutableStateFlow(-1f)
+    val updateError = MutableStateFlow<String?>(null)
 }

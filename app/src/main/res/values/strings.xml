@@ -160,6 +160,27 @@
     <string name="backup_exported">Backup saved.</string>
     <string name="backup_imported">Backup restored.</string>
     <string name="backup_failed">Could not read or write the file.</string>
+    <!-- app updates -->
+    <string name="settings_update_title">App updates</string>
+    <string name="update_installed">Installed version %1$s</string>
+    <string name="update_auto_title">Check once a day</string>
+    <string name="update_auto_desc">Asks the project page for a newer build together with the daily blocklist refresh, and at most every six hours when the app starts.</string>
+    <string name="update_not_checked">No check has run yet.</string>
+    <string name="update_up_to_date">You are on the newest release.</string>
+    <string name="update_available">Version %1$s is available</string>
+    <string name="update_downloading">Downloading the update…</string>
+    <string name="update_download_install">Download and install %1$s</string>
+    <string name="update_notes_title">What is new</string>
+    <string name="update_check_now">Check now</string>
+    <string name="update_check_failed">Could not reach GitHub. Check the connection and try again.</string>
+    <string name="update_download_failed">The download failed, or the file did not match the checksum GitHub reported. Nothing was installed.</string>
+    <string name="update_apk_missing">That release has no APK attached, so it cannot be installed from here.</string>
+    <string name="update_install_failed">Android did not open the installer for the downloaded file.</string>
+    <string name="update_install_permission">Android needs your permission before AdShield can install an app.</string>
+    <string name="update_install_permission_button">Allow installing apps</string>
+    <string name="update_digest_note">The downloaded file is verified against the SHA-256 checksum GitHub reports for it, and installed through Android\'s own package installer.</string>
+    <string name="update_banner_subtitle">A newer AdShield was published. You can also finish this from Settings.</string>
+
     <string name="settings_about_title">About</string>
     <string name="about_version">Version %1$s</string>
     <string name="about_body">AdShield filters DNS on-device through a local VPN, so no server ever sees your traffic. Pair it with the built-in browser for request-level and cosmetic ad blocking, and enable the hosts mode on rooted devices for system-wide blocking that no app can bypass.</string>

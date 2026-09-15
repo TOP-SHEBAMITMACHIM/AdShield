@@ -56,6 +56,7 @@
 * סינון לפי אפליקציה: החרגת אפליקציות (למשל בנקאות או לקוחות VPN) — המנהרה נבנית מחדש מיד.
 * השהיה ל־5/15/60 דקות מהאפליקציה או מההתראה; החסימה חוזרת אוטומטית.
 * התראה קבועה עם מונה חי ופעולות מהירות.
+* **עדכון הגרסה מתוך האפליקציה** (חדש ב־1.3.0): האפליקציה שואלת את עמוד ה־Releases אם פורסמה גרסה חדשה, מציגה התראה בלוח הבקרה ובהגדרות, ומורידה את ה־APK ישירות משם. הקובץ נבדק מול סכום ה־SHA-256 ש־GitHub מדווח, ומותקן דרך המתקין של Android.
 * **פאנל חסימה צף** (חדש ב־1.2.0): בועה קטנה שנשארת מעל אפליקציות אחרות. נגיעה בה פותחת רשימה של שמות שהורשו לאחרונה, ומשם חוסמים בנגיעה אחת את מה שדלף — בלי לצאת מהאפליקציה שפתוחה. הבועה ניתנת לגרירה, אופציונלית לחלוטין, ומופיעה רק כשההגנה פועלת.
 * **הודעת “פרסומת נחסמה”** (חדש ב־1.1.0): הודעה קצרה מופיעה כאשר פרסומת נחסמת בזמן שאפליקציה אחרת בחזית, עם הדומיין שנחסם. ההודעה מוגבלת לאחת לכל 4 שניות כדי שפרץ של חסימות לא יציף את המסך, אינה מופיעה כשמסך האפליקציה פתוח או כשהמסך כבוי, ואפשר לכבות אותה בהגדרות או לבדוק אותה בכפתור בדיקה.
 * אריח Quick Settings להפעלה וכיבוי של ההגנה.
@@ -103,11 +104,13 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 | בדיקה | תוצאה |
 | --- | --- |
-| `:app:assembleDebug` | `app/build/outputs/apk/debug/AdShield.apk`, כ־16MB, `com.adshield.app`, ‏versionCode 4 / ‏versionName 1.2.0, ‏minSdk 24, ‏target 35, שירות VPN וכל ההרשאות קיימים |
+| `:app:assembleDebug` | `app/build/outputs/apk/debug/AdShield.apk`, כ־16MB, `com.adshield.app`, ‏versionCode 5 / ‏versionName 1.3.0, ‏minSdk 24, ‏target 35, שירות VPN, ספק הקבצים וכל ההרשאות קיימים |
 | `:app:assembleRelease` | `app/build/outputs/apk/release/app-release-unsigned.apk`, כ־1.3MB עם R8 וצמצום משאבים |
-| `:app:testDebugUnitTest` | **45 בדיקות, 0 כשלים** |
+| `:app:testDebugUnitTest` | **51 בדיקות, 0 כשלים** |
 | `:app:lintDebug` | **0 שגיאות**, 20 אזהרות |
-| `python tools/verify_project.py` | כל הפניות למשאבים תקינות, XML תקין, סוגריים מאוזנים, 170 מחרוזות בשתי השפות |
+| `python tools/verify_project.py` | כל הפניות למשאבים תקינות, XML תקין, סוגריים מאוזנים, 189 מחרוזות בשתי השפות |
+| כותר ה־API של העדכון | `releases/latest` מחזיר `tag_name`,‏ `body` ו־`digest` בפורמט `sha256:…` — כלומר השדות שהמטפל קורא קיימים בפועל |
+| APK של release | ספק הקבצים `androidx.core.content.FileProvider` שומר גם אחרי R8, מפני שהמניפסט מצהיר עליו בשמו |
 
 R8 שומר את המחלקות שהמערכת מפעילה לפי שם — `AdVpnService`, `MainActivity`, `AdShieldTileService`, `BootReceiver`, `DailyUpdateWorker` — ללא שינוי שם בקובץ המיפוי של release; שאר הקוד עובר ערפול.
 
@@ -121,6 +124,7 @@ R8 שומר את המחלקות שהמערכת מפעילה לפי שם — `AdV
 * פענוח קובצי hosts, Adblock (`||domain^`), כתובות URL ורשימה מובנית, כולל הבטחה ש־`localhost` וכתובות raw לא יהפכו לכללים.
 * כללי הודעת “פרסומת נחסמה”: הפעלה/כיבוי, שקט כשהאפליקציה בחזית או כשהמסך כבוי, מרווח מינימלי בין הודעות, וקיצור דומיין ארוך לכדי שורה אחת.
 * בחירת ההצעות לפאנל הצף: שמות שהורשו בלבד, בלי מה שנחסם כבר, בלי מה שברשימה הלבנה או השחורה ובלי שמות שאינם דומיין.
+* השוואת גרסאות: `1.10.0` חדש מ־`1.9.0`, קידומת `v` מתעלמת ממנה, מקטע חסר נספר כאפס, וסיומת כמו `-beta` מתעלמת ממנה.
 
 Lint מצא ותיקן שלוש תקלות אמיתיות: בדיקת הרשאת ההתראות לפני `notify()`, שימוש ב־`Process.waitFor(timeout, unit)` שאינו זמין ב־API 24–25, ו־API מיושן של אריח Quick Settings במכשירים ישנים. שגיאת ה־lint הרביעית בנושא `foregroundServiceType="systemExempted"` היא false positive סטטי: תיעוד Android מציין שאפליקציות VPN המשתמשות ב־`VpnService` עומדות בתנאי הסוג הזה, ולכן השגיאה מושתקת רק ברכיב השירות הרלוונטי.
 
@@ -143,6 +147,7 @@ python tools/verify_project.py
 | `RECEIVE_BOOT_COMPLETED` | הפעלה אופציונלית בעת אתחול |
 | `QUERY_ALL_PACKAGES` | הצגת אפליקציות מותקנות לצורך החרגות |
 | `SYSTEM_ALERT_WINDOW` | הפאנל הצף האופציונלי; Android מציג חלון אישור משלו לפני שהחלון הראשון נוצר |
+| `REQUEST_INSTALL_PACKAGES` | התקנת APK של עדכון שהורד; Android דורש אישור נפרד לכל אפליקציה, ושום דבר לא מותקן בשקט |
 
 שום מידע אינו עוזב את המכשיר: רשימות חסימה מורדות, שאילתות נפתרות באופן אנונימי והסטטיסטיקות נשמרות באחסון הפרטי של האפליקציה.
 
@@ -164,6 +169,19 @@ python tools/verify_project.py
 * ההודעה מוגבלת לאחת לכל 4 שניות.
 * היא לא מוצגת כשמסך האפליקציה עצמה פתוח (שם יש כבר פיד פעילות חי), כשהמסך כבוי או כשהחסימה מושהית.
 * אפשר לכבות אותה ב־**הגדרות ← חסימה מתקדמת ← הודעת פרסומת נחסמה**, ולשם יש גם כפתור *הצג הודעת בדיקה* כדי לוודא שהמכשיר מציג אותה.
+
+## עדכון הגרסה מתוך האפליקציה (1.3.0)
+
+האפליקציה מופצת כ־APK מחוץ לחנות, ולכן אין מי שידחוף לה גרסה חדשה. המנגנון סוגר את הפער: היא שואלת את נקודת הקצה `releases/latest` של המאגר, ואם התגית שם חדשה מזו שמותקנת — מציגה התראה בלוח הבקרה ובהגדרות.
+
+מה קורה בלחיצה על “הורד והתקן”:
+
+1. ה־APK יורד לתיקיית ה־cache של האפליקציה בלבד, עם פס התקדמות.
+2. **הקובץ נבדק מול סכום ה־SHA-256 ש־GitHub מדווח עליו.** אם הוא לא תואם, הקובץ נמחק ולא מותקן דבר. אפליקציה שמתקינה לעצמה עדכונים לא צריכה לסמוך על בייטים רק כי הם הגיעו ב־TLS.
+3. הקובץ נמסר למתקין הרשמי של Android דרך `FileProvider`, עם הרשאת קריאה חד־פעמית לתיקייה הזו בלבד.
+4. ההתקנה עצמה היא של המשתמש: Android דורש אישור *התקנת אפליקציות לא מוכרות* לכל אפליקציה, והאפליקציה מציגה כפתור נפרד שפותח את המסך הזה ומודיעה לחזור ולנסות שוב.
+
+מתי נבדק: פעם ביום יחד עם רענון רשימות החסימה, ולכל היותר כל שש שעות כשהאפליקציה עולה — כדי לא להרעיב את מגבלת הבקשות של GitHub. אפשר לכבות את הבדיקה האוטומטית או ללחוץ “בדוק עכשיו” בהגדרות.
 
 ## פאנל החסימה הצף (1.2.0)
 
@@ -202,20 +220,23 @@ app/src/main/java/com/adshield/app/
   AdShieldApp.kt              אפליקציה, ערוץ התראות ותזמון worker
   MainActivity.kt             מארח Compose ותהליך אישור VPN
   core/                       EngineState, AppGraph, BlockedToastPolicy, BlockedToastNotifier,
-                              PanelCandidates ועוזרי תצוגה
+                              PanelCandidates, Version, UpdateInfo ועוזרי תצוגה
   data/                       SettingsStore, StatsStore, RulesStore, BlocklistRepository,
-                              AppsRepository, BackupManager
+                              AppsRepository, BackupManager, UpdateManager
   filter/                     FilterEngine (התאמת סיומות), DohHosts (רשימת הגנת עקיפה)
   vpn/                        AdVpnService (מנהרה וחומת DNS), Net (IPv4/IPv6/UDP/TCP),
                               DnsMessage, DnsUpstream (UDP + DoH), ResolverIps
   browser/                    AdBlockWebViewClient, CosmeticFilter
   overlay/                    OverlayPanel (חלון הבועה והפאנל), OverlayContent (מסך הפאנל)
-  ui/                         מסכי Dashboard, Browser, Apps, Filters, Settings, theme ורכיבים משותפים
+  ui/                         מסכי Dashboard, Browser, Apps, Filters, Settings, theme,
+                              UpdateSection ו־UpdateController ורכיבים משותפים
   root/                       RootHostsManager (מצב קובץ hosts אופציונלי)
   tile/, boot/, work/         אריח Quick Settings, מקלט אתחול ו־worker לעדכון יומי
-app/src/test/java/com/adshield/app/   45 בדיקות יחידה למנות, DNS, מסננים, פענוח רשימות, הודעת החסימה ובחירת הצעות לפאנל
+app/src/test/java/com/adshield/app/   51 בדיקות יחידה למנות, DNS, מסננים, פענוח רשימות, הודעת החסימה,
+                                     בחירת הצעות לפאנל והשוואת גרסאות לעדכון
 app/src/main/assets/default_blocklist.txt    רשימת פתיחה מובנית
 app/src/main/res/values-iw/                  תרגום לעברית
+app/src/main/res/xml/file_paths.xml          תיקיית ההורדות שמשותפת עם מתקין החבילות
  tools/verify_project.py                     בודק סטטי של הפרויקט ללא SDK
 tools/build-windows.sh                       בנייה בפקודה אחת באמצעות `.toolchain/`
 .toolchain/                                  JDK, Gradle ו־Android SDK מקומיים (מוחרגים מ־Git)

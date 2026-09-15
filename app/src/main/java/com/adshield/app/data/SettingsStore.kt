@@ -48,6 +48,15 @@ class SettingsStore(context: Context) {
         get() = prefs.getBoolean(KEY_AUTOUPDATE, true)
         set(value) = prefs.edit { putBoolean(KEY_AUTOUPDATE, value) }
 
+    var autoCheckUpdates: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_CHECK_UPDATES, true)
+        set(value) = prefs.edit { putBoolean(KEY_AUTO_CHECK_UPDATES, value) }
+
+    /** When the background release check last ran, so it cannot hammer the API. */
+    var lastUpdateCheck: Long
+        get() = prefs.getLong(KEY_LAST_UPDATE_CHECK, 0L)
+        set(value) = prefs.edit { putLong(KEY_LAST_UPDATE_CHECK, value) }
+
     var hijackResolvers: Boolean
         get() = prefs.getBoolean(KEY_HIJACK, true)
         set(value) = prefs.edit { putBoolean(KEY_HIJACK, value) }
@@ -135,6 +144,8 @@ class SettingsStore(context: Context) {
         private const val KEY_CUSTOM_DOH = "dns_custom_doh"
         private const val KEY_AUTOSTART = "auto_start"
         private const val KEY_AUTOUPDATE = "auto_update"
+        private const val KEY_AUTO_CHECK_UPDATES = "auto_check_updates"
+        private const val KEY_LAST_UPDATE_CHECK = "last_update_check"
         private const val KEY_HIJACK = "hijack_resolvers"
         private const val KEY_DOH_HOSTS = "block_doh_hosts"
         private const val KEY_PAUSED_UNTIL = "paused_until"

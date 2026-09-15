@@ -164,6 +164,27 @@
     <string name="backup_exported">הגיבוי נשמר.</string>
     <string name="backup_imported">הגיבוי שוחזר.</string>
     <string name="backup_failed">לא ניתן לקרוא או לכתוב את הקובץ.</string>
+    <!-- app updates -->
+    <string name="settings_update_title">עדכוני גרסה</string>
+    <string name="update_installed">גרסה מותקנת %1$s</string>
+    <string name="update_auto_title">בדיקה פעם ביום</string>
+    <string name="update_auto_desc">שואל את עמוד הפרויקט אם פורסמה גרסה חדשה — יחד עם רענון רשימות החסימה היומי, ולכל היותר כל שש שעות כשהאפליקציה עולה.</string>
+    <string name="update_not_checked">עדיין לא בוצעה בדיקה.</string>
+    <string name="update_up_to_date">אתה בגרסה החדשה ביותר.</string>
+    <string name="update_available">גרסה %1$s זמינה</string>
+    <string name="update_downloading">מוריד את העדכון…</string>
+    <string name="update_download_install">הורד והתקן %1$s</string>
+    <string name="update_notes_title">מה חדש</string>
+    <string name="update_check_now">בדוק עכשיו</string>
+    <string name="update_check_failed">לא הצלחתי להגיע ל-GitHub. בדוק את החיבור ונסה שוב.</string>
+    <string name="update_download_failed">ההורדה נכשלה, או שהקובץ לא תאם את סכום הבדיקה ש-GitHub דיווח. שום דבר לא הותקן.</string>
+    <string name="update_apk_missing">לגרסה הזו אין קובץ APK מצורף, ולכן אי אפשר להתקין אותה מכאן.</string>
+    <string name="update_install_failed">Android לא פתח את המתקין עבור הקובץ שהורד.</string>
+    <string name="update_install_permission">Android דורש את אישורך לפני ש-AdShield יוכל להתקין אפליקציה.</string>
+    <string name="update_install_permission_button">אשר התקנת אפליקציות</string>
+    <string name="update_digest_note">הקובץ שהורד נבדק מול סכום ה-SHA-256 ש-GitHub מדווח עליו, ומותקן דרך המתקין הרשמי של Android.</string>
+    <string name="update_banner_subtitle">פורסמה גרסה חדשה של AdShield. אפשר לסיים את זה גם מההגדרות.</string>
+
     <string name="settings_about_title">אודות</string>
     <string name="about_version">גרסה %1$s</string>
     <string name="about_body">AdShield מסנן DNS על המכשיר דרך VPN מקומי, כך שאף שרת לא רואה את התעבורה שלך. שלב אותו עם הדפדפן המובנה לחסימה ברמת הבקשה ובאלמנטים, והפעל את מצב hosts במכשירים עם רוט לחסימה מערכתית שאין דרך לעקוף.</string>

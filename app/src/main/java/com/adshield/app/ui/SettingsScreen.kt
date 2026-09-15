@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -100,7 +99,7 @@ fun SettingsScreen() {
     val versionName = remember {
         runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        }.getOrNull() ?: "1.2.0"
+        }.getOrNull() ?: "1.3.0"
     }
 
     val exportLauncher = rememberLauncherForActivityResult(
@@ -389,6 +388,8 @@ fun SettingsScreen() {
             }
         }
 
+        item { UpdateSettingsCard() }
+
         item {
             SectionCard(
                 title = stringResource(R.string.settings_about_title),
@@ -408,33 +409,6 @@ fun SettingsScreen() {
 }
 
 private const val ROOT_HOSTS_LIMIT = 200_000
-
-@Composable
-private fun ToggleRow(
-    title: String,
-    description: String?,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (description != null) {
-                Text(
-                    description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
-    }
-}
 
 @Composable
 private fun RadioRow(title: String, selected: Boolean, onClick: () -> Unit) {

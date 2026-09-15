@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the folder that holds a downloaded update is shared, and only with the package
+     installer that receives it through a one-shot read grant. -->
+<paths>
+    <cache-path name="updates" path="updates/" />
+</paths>

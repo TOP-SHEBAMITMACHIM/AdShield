@@ -56,6 +56,7 @@ fun DashboardScreen(onRequestVpn: () -> Unit) {
     val topDomains by EngineState.topDomains.collectAsState()
     val week by EngineState.week.collectAsState()
     val error by EngineState.vpnError.collectAsState()
+    val availableUpdate by EngineState.availableUpdate.collectAsState()
 
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
@@ -80,6 +81,10 @@ fun DashboardScreen(onRequestVpn: () -> Unit) {
                     if (enabled) onRequestVpn() else AdVpnService.stop(context)
                 }
             )
+        }
+
+        if (availableUpdate != null) {
+            item { UpdateBannerCard() }
         }
 
         val currentError = error

@@ -6,6 +6,7 @@ import com.adshield.app.data.BlocklistRepository
 import com.adshield.app.data.RulesStore
 import com.adshield.app.data.SettingsStore
 import com.adshield.app.data.StatsStore
+import com.adshield.app.data.UpdateManager
 import com.adshield.app.filter.DohHosts
 import com.adshield.app.filter.FilterEngine
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,7 @@ object AppGraph {
     val lists: BlocklistRepository by lazy { BlocklistRepository(app) }
     val rules: RulesStore by lazy { RulesStore(app) }
     val apps: AppsRepository by lazy { AppsRepository(app) }
+    val updates: UpdateManager by lazy { UpdateManager(app) }
 
     fun init(context: Context) {
         if (initialized) return
@@ -38,6 +40,22 @@ object AppGraph {
             runCatching { lists.init() }
             refreshFilters()
         }
+        scope.launch { runCatching { checkForUpdateIfDue() } }
+    }
+
+    /**
+     * Asks GitHub for a newer release, at most a few times a day. The manual button in Settings
+     * skips the interval, this is only the background courtesy check.
+     */
+    private suspend fun checkForUpdateIfDue() {
+        if (!settings.autoCheckUpdates) return
+        val now = System.currentTimeMillis()
+        if (now - settings.lastUpdateCheck < UPDATE_CHECK_INTERVAL_MS) return
+        settings.lastUpdateCheck = now
+        updates.check().getOrNull()?.let { release ->
+            EngineState.availableUpdate.value = release
+        }
+        EngineState.updateChecked.value = true
     }
 
     /** Rebuilds the in-memory rule sets from lists and user rules. */
@@ -53,4 +71,6 @@ object AppGraph {
     fun refreshFiltersAsync() {
         scope.launch { runCatching { refreshFilters() } }
     }
+
+    private const val UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000L
 }
