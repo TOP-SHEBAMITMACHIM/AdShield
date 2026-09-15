@@ -1,5 +1,8 @@
 package com.adshield.app.ui
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -33,8 +36,10 @@ import androidx.compose.ui.unit.dp
 import com.adshield.app.R
 import com.adshield.app.core.AppGraph
 import com.adshield.app.core.BlockedToastNotifier
+import com.adshield.app.core.EngineState
 import com.adshield.app.data.BackupManager
 import com.adshield.app.data.SettingsStore
+import com.adshield.app.overlay.OverlayPanel
 import com.adshield.app.root.RootHostsManager
 import com.adshield.app.vpn.AdVpnService
 import com.adshield.app.work.DailyUpdateWorker
@@ -69,14 +74,33 @@ fun SettingsScreen() {
     var hijack by remember { mutableStateOf(settings.hijackResolvers) }
     var blockDoh by remember { mutableStateOf(settings.blockDohHostnames) }
     var blockedMessage by remember { mutableStateOf(settings.blockedToast.value) }
+    var floatingPanel by remember { mutableStateOf(settings.floatingPanel.value) }
+    var overlayPermission by remember { mutableStateOf(OverlayPanel.canDrawOverlays(context)) }
     var theme by remember { mutableStateOf(settings.theme.value) }
     var status by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
+    val protectionRunning by EngineState.isRunning.collectAsState()
+
+    // The consent screen belongs to Android, so the state is re-read once it closes.
+    val overlayPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        overlayPermission = OverlayPanel.canDrawOverlays(context)
+        AdVpnService.refreshOverlay(context)
+    }
+
+    fun requestOverlayPermission() {
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:${context.packageName}")
+        )
+        runCatching { overlayPermissionLauncher.launch(intent) }
+    }
 
     val versionName = remember {
         runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        }.getOrNull() ?: "1.1.0"
+        }.getOrNull() ?: "1.2.0"
     }
 
     val exportLauncher = rememberLauncherForActivityResult(
@@ -106,6 +130,8 @@ fun SettingsScreen() {
                 hijack = settings.hijackResolvers
                 blockDoh = settings.blockDohHostnames
                 blockedMessage = settings.blockedToast.value
+                floatingPanel = settings.floatingPanel.value
+                overlayPermission = OverlayPanel.canDrawOverlays(context)
                 theme = settings.theme.value
             }
         }
@@ -222,6 +248,37 @@ fun SettingsScreen() {
                                 .showSample(context.getString(R.string.settings_toast_sample_domain))
                         }
                     ) { Text(stringResource(R.string.settings_toast_test)) }
+                }
+                ToggleRow(
+                    title = stringResource(R.string.settings_overlay_title),
+                    description = stringResource(R.string.settings_overlay_desc),
+                    checked = floatingPanel,
+                    onCheckedChange = { enabled ->
+                        floatingPanel = enabled
+                        settings.setFloatingPanel(enabled)
+                        overlayPermission = OverlayPanel.canDrawOverlays(context)
+                        if (enabled && !overlayPermission) requestOverlayPermission()
+                        // A running tunnel picks the change up through this action.
+                        AdVpnService.refreshOverlay(context)
+                    }
+                )
+                if (floatingPanel && !overlayPermission) {
+                    Text(
+                        stringResource(R.string.settings_overlay_permission_needed),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { requestOverlayPermission() }
+                    ) { Text(stringResource(R.string.settings_overlay_permission)) }
+                }
+                if (floatingPanel && !protectionRunning) {
+                    Text(
+                        stringResource(R.string.settings_overlay_running_only),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }

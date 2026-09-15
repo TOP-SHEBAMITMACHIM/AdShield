@@ -130,6 +130,20 @@
     <string name="settings_toast_sample_domain">ads.tracker.example.com</string>
     <string name="toast_ad_blocked">פרסומת נחסמה: %1$s</string>
 
+    <!-- floating block panel -->
+    <string name="settings_overlay_title">פאנל חסימה צף</string>
+    <string name="settings_overlay_desc">משאיר בועה קטנה מעל אפליקציות אחרות. נגיעה בה פותחת רשימה של שמות שהורשו, ומשם אפשר לחסום מה שלא רצית — בלי לצאת מהאפליקציה שפתוחה. דורש הרשאת הצגה מעל אפליקציות אחרות, ומופיע כשההגנה פועלת.</string>
+    <string name="settings_overlay_permission">אשר הצגה מעל אפליקציות</string>
+    <string name="settings_overlay_permission_needed">Android מבקש אישור לפני שהבועה תוכל להופיע מעל אפליקציות אחרות.</string>
+    <string name="settings_overlay_running_only">הפעל את ההגנה כדי לראות את הבועה.</string>
+    <string name="overlay_open">פתח את פאנל החסימה</string>
+    <string name="overlay_recent_title">מה שדלף לאחרונה</string>
+    <string name="overlay_empty">עוד אין מה להציג. הרשימה תתמלא כשאפליקציות יפנו לשמות.</string>
+    <string name="overlay_block">חסום</string>
+    <string name="overlay_manual_label">חסימת דומיין</string>
+    <string name="overlay_blocked_today">נחסמו היום: %1$d</string>
+    <string name="overlay_blocked_done">%1$s נוסף לרשימה השחורה</string>
+
     <string name="settings_theme_title">מראה</string>
     <string name="theme_system">לפי המערכת</string>
     <string name="theme_light">בהיר</string>

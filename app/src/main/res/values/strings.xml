@@ -126,6 +126,20 @@
     <string name="settings_toast_sample_domain">ads.tracker.example.com</string>
     <string name="toast_ad_blocked">Ad blocked: %1$s</string>
 
+    <!-- floating block panel -->
+    <string name="settings_overlay_title">Floating block panel</string>
+    <string name="settings_overlay_desc">Keeps a small bubble on top of other apps. Tap it to see the hosts that were allowed and block the ones you did not want, without leaving the app you are in. Needs the “display over other apps” permission and appears while protection is running.</string>
+    <string name="settings_overlay_permission">Allow drawing over apps</string>
+    <string name="settings_overlay_permission_needed">Android asks for your approval before the bubble can appear over other apps.</string>
+    <string name="settings_overlay_running_only">Turn protection on to see the bubble.</string>
+    <string name="overlay_open">Open the block panel</string>
+    <string name="overlay_recent_title">Slipped through recently</string>
+    <string name="overlay_empty">Nothing to show yet. The list fills up as apps look up hosts.</string>
+    <string name="overlay_block">Block</string>
+    <string name="overlay_manual_label">Block a domain</string>
+    <string name="overlay_blocked_today">Blocked today: %1$d</string>
+    <string name="overlay_blocked_done">%1$s added to the blacklist</string>
+
     <string name="settings_theme_title">Appearance</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>

@@ -20,6 +20,10 @@ class SettingsStore(context: Context) {
     private val _blockedToast = MutableStateFlow(prefs.getBoolean(KEY_BLOCKED_TOAST, true))
     val blockedToast: StateFlow<Boolean> = _blockedToast.asStateFlow()
 
+    /** Off by default: the floating panel needs the draw-over-other-apps permission. */
+    private val _floatingPanel = MutableStateFlow(prefs.getBoolean(KEY_FLOATING_PANEL, false))
+    val floatingPanel: StateFlow<Boolean> = _floatingPanel.asStateFlow()
+
     var dnsMode: String
         get() = prefs.getString(KEY_DNS_MODE, DNS_SYSTEM) ?: DNS_SYSTEM
         set(value) {
@@ -94,6 +98,11 @@ class SettingsStore(context: Context) {
         prefs.edit { putBoolean(KEY_BLOCKED_TOAST, value) }
     }
 
+    fun setFloatingPanel(value: Boolean) {
+        _floatingPanel.value = value
+        prefs.edit { putBoolean(KEY_FLOATING_PANEL, value) }
+    }
+
     fun isExcluded(packageName: String): Boolean = _excluded.value.contains(packageName)
 
     fun setExcluded(packageName: String, excluded: Boolean) {
@@ -139,5 +148,6 @@ class SettingsStore(context: Context) {
         private const val KEY_BROWSER_URL = "browser_last_url"
         private const val KEY_ROOT_INSTALLED = "root_hosts_installed"
         private const val KEY_BLOCKED_TOAST = "blocked_toast"
+        private const val KEY_FLOATING_PANEL = "floating_panel"
     }
 }

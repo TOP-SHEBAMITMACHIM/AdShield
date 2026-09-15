@@ -16,6 +16,13 @@ object EngineState {
     val queriesToday = MutableStateFlow(0L)
     val rulesCount = MutableStateFlow(0)
     val recent = MutableStateFlow<List<LogEntry>>(emptyList())
+
+    /**
+     * Lookups that were allowed, newest first. Only the floating panel reads this, and it is
+     * never written to disk: it exists so a host that slipped past the lists can be blocked in
+     * one tap while the user is still looking at the page that showed the ad.
+     */
+    val allowedRecent = MutableStateFlow<List<LogEntry>>(emptyList())
     val topDomains = MutableStateFlow<List<Pair<String, Long>>>(emptyList())
     val week = MutableStateFlow(List(7) { 0L })
     val vpnError = MutableStateFlow<String?>(null)

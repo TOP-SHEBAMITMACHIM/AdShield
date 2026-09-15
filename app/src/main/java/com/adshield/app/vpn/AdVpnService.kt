@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.net.VpnService
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -21,6 +23,7 @@ import com.adshield.app.core.AppGraph
 import com.adshield.app.core.BlockedToastNotifier
 import com.adshield.app.core.EngineState
 import com.adshield.app.filter.FilterEngine
+import com.adshield.app.overlay.OverlayPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -54,8 +57,13 @@ class AdVpnService : VpnService() {
     @Volatile private var observing = false
     @Volatile private var foregroundStarted = false
     @Volatile private var toastEnabled = true
+    @Volatile private var overlayEnabled = false
 
     private val toastNotifier by lazy { BlockedToastNotifier(this) }
+    private val overlayPanel by lazy { OverlayPanel(this) }
+
+    /** Windows and the Compose owners behind them are main thread objects. */
+    private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 
     private var tunnel: ParcelFileDescriptor? = null
     private var input: FileInputStream? = null
@@ -70,6 +78,7 @@ class AdVpnService : VpnService() {
         super.onCreate()
         pausedUntil = runCatching { AppGraph.settings.pausedUntil }.getOrDefault(0L)
         toastEnabled = runCatching { AppGraph.settings.blockedToast.value }.getOrDefault(true)
+        overlayEnabled = runCatching { AppGraph.settings.floatingPanel.value }.getOrDefault(false)
         runCatching { AdShieldApp.createChannels(this) }
     }
 
@@ -115,6 +124,17 @@ class AdVpnService : VpnService() {
                 return START_NOT_STICKY
             }
 
+            // Sent when the floating panel is switched on, or after Android's overlay consent
+            // screen closes. It must not start the tunnel by accident.
+            ACTION_REFRESH_OVERLAY -> {
+                if (running) {
+                    applyOverlay()
+                    return START_STICKY
+                }
+                stopSelf()
+                return START_NOT_STICKY
+            }
+
             else -> {
                 startProtection()
                 return START_STICKY
@@ -131,6 +151,7 @@ class AdVpnService : VpnService() {
 
     override fun onDestroy() {
         stopEverything()
+        runCatching { overlayPanel.hide() }
         super.onDestroy()
     }
 
@@ -175,6 +196,7 @@ class AdVpnService : VpnService() {
         startLoop()
         observe()
         refreshNotification()
+        applyOverlay()
     }
 
     private fun stopEverything() {
@@ -188,6 +210,7 @@ class AdVpnService : VpnService() {
         runCatching { scope.cancel() }
         scopeAlive = false
         runCatching { AppGraph.stats.flushBlocking() }
+        applyOverlay()
         if (foregroundStarted) {
             runCatching { ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE) }
             foregroundStarted = false
@@ -224,6 +247,15 @@ class AdVpnService : VpnService() {
         scope.launch {
             runCatching {
                 AppGraph.settings.blockedToast.collect { enabled -> toastEnabled = enabled }
+            }
+        }
+
+        scope.launch {
+            runCatching {
+                AppGraph.settings.floatingPanel.collect { enabled ->
+                    overlayEnabled = enabled
+                    applyOverlay()
+                }
             }
         }
 
@@ -419,6 +451,12 @@ class AdVpnService : VpnService() {
             return
         }
 
+        if (question != null) {
+            // Remembered in memory only, so the floating panel can offer to block a host that
+            // slipped past the lists while the user is still looking at the page.
+            AppGraph.stats.recordAllowed(question.domain)
+        }
+
         val resolver = upstream
         if (resolver == null) {
             writeResponse(DnsMessage.servfail(query, question), replyFrom, replyTo, replyPort, ipv4)
@@ -465,6 +503,21 @@ class AdVpnService : VpnService() {
     }
 
     // ------------------------------------------------------------- notification
+
+    // ------------------------------------------------------------- floating panel
+
+    /**
+     * Shows or hides the floating bubble. Both the tunnel and the setting decide: a bubble with
+     * neither a tunnel nor the user's consent would be an unexplained window on screen.
+     */
+    private fun applyOverlay() {
+        val wanted = overlayEnabled && running
+        mainHandler.post {
+            runCatching {
+                if (wanted && overlayPanel.canDraw()) overlayPanel.show() else overlayPanel.hide()
+            }
+        }
+    }
 
     private fun startInForeground() {
         val notification = buildNotification()
@@ -554,6 +607,7 @@ class AdVpnService : VpnService() {
         const val ACTION_PAUSE = "com.adshield.app.action.PAUSE"
         const val ACTION_RESUME = "com.adshield.app.action.RESUME"
         const val ACTION_REBUILD = "com.adshield.app.action.REBUILD"
+        const val ACTION_REFRESH_OVERLAY = "com.adshield.app.action.REFRESH_OVERLAY"
         const val EXTRA_MINUTES = "minutes"
 
         const val NOTIFICATION_ID = 0x5EED
@@ -577,6 +631,16 @@ class AdVpnService : VpnService() {
         fun resume(context: Context) = send(context, ACTION_RESUME)
 
         fun rebuild(context: Context) = send(context, ACTION_REBUILD)
+
+        /**
+         * Asked for when the floating panel is switched on. Deliberately a plain startService:
+         * refreshOverlay must not start the tunnel, and a background start would also be
+         * rejected on Android 12 and later.
+         */
+        fun refreshOverlay(context: Context) {
+            val intent = Intent(context, AdVpnService::class.java).setAction(ACTION_REFRESH_OVERLAY)
+            runCatching { context.applicationContext.startService(intent) }
+        }
 
         private fun send(context: Context, action: String, minutes: Int = 0) {
             val intent = Intent(context, AdVpnService::class.java).setAction(action)

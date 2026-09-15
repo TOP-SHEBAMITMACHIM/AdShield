@@ -30,6 +30,10 @@ class StatsStore(context: Context) {
     private val domains = HashMap<String, Long>()
     private val recent = ArrayDeque<EngineState.LogEntry>()
 
+    /** Last allowed lookup per host; oldest insertion order, dropped once it grows past the cap. */
+    private val allowedLock = Any()
+    private val allowed = LinkedHashMap<String, Long>()
+
     private val dirty = AtomicBoolean(false)
 
     fun load() {
@@ -71,6 +75,24 @@ class StatsStore(context: Context) {
         dirty.set(true)
     }
 
+    /**
+     * Remembers a host that was allowed so the floating panel can offer to block it. This stays
+     * in memory on purpose: it is browsing history, and the app promises to keep none.
+     */
+    fun recordAllowed(domain: String) {
+        val host = domain.trim().trimEnd('.').lowercase()
+        if (host.length < 4) return
+        synchronized(allowedLock) {
+            allowed.remove(host)
+            allowed[host] = System.currentTimeMillis()
+            while (allowed.size > MAX_ALLOWED) {
+                val oldest = allowed.keys.firstOrNull() ?: break
+                allowed.remove(oldest)
+            }
+        }
+        dirty.set(true)
+    }
+
     fun recordBlocked(domain: String) {
         rotateDay()
         today++
@@ -108,6 +130,11 @@ class StatsStore(context: Context) {
             .map { it.key to it.value }
         val keys = Format.lastSevenDayKeys()
         EngineState.week.value = keys.map { days[it] ?: 0L }
+        EngineState.allowedRecent.value = synchronized(allowedLock) {
+            allowed.entries.toList().asReversed()
+                .take(MAX_PUBLISHED_ALLOWED)
+                .map { entry -> EngineState.LogEntry(entry.value, entry.key, false) }
+        }
     }
 
     /** Publishes at most twice a second and flushes to disk periodically. */
@@ -159,6 +186,8 @@ class StatsStore(context: Context) {
     private companion object {
         const val MAX_RECENT = 200
         const val MAX_DOMAIN_ENTRIES = 4_000
+        const val MAX_ALLOWED = 120
+        const val MAX_PUBLISHED_ALLOWED = 40
         const val PUBLISH_INTERVAL_MS = 500L
         const val FLUSH_TICKS = 40
     }
