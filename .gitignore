@@ -1,0 +1,17 @@
+*.iml
+.gradle/
+local.properties
+.toolchain/
+local.properties.bak
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+
+.freebuff/

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="lists/" />
+        <exclude domain="file" path="stats.json" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="lists/" />
+    </device-transfer>
+</data-extraction-rules>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AdShield</string>
+
+    <!-- navigation -->
+    <string name="tab_home">Home</string>
+    <string name="tab_browser">Browser</string>
+    <string name="tab_apps">Apps</string>
+    <string name="tab_filters">Filters</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- dashboard -->
+    <string name="protection_title">Protection</string>
+    <string name="protection_active">Filtering active</string>
+    <string name="protection_off">Protection is off</string>
+    <string name="protection_paused">Paused</string>
+    <string name="protection_desc_active">Every DNS lookup on this device goes through AdShield and is checked against your blocklists.</string>
+    <string name="protection_desc_off">Turn on the local VPN to filter every app on this device. No traffic leaves your device unfiltered.</string>
+    <string name="protection_desc_paused">Blocking is temporarily disabled. Filtering resumes automatically.</string>
+    <string name="stat_blocked_today">Blocked today</string>
+    <string name="stat_blocked_total">Blocked total</string>
+    <string name="stat_queries_today">DNS queries today</string>
+    <string name="stat_rules">Active rules</string>
+    <string name="week_title">Last 7 days</string>
+    <string name="week_subtitle">Blocked requests per day</string>
+    <string name="top_domains_title">Top blocked domains</string>
+    <string name="top_domains_empty">Nothing blocked yet. Browse for a while and check back.</string>
+    <string name="recent_title">Live activity</string>
+    <string name="recent_empty">Blocked requests will appear here in real time.</string>
+    <string name="pause_title">Pause blocking</string>
+    <string name="pause_5">5 min</string>
+    <string name="pause_15">15 min</string>
+    <string name="pause_60">1 hour</string>
+    <string name="resume_now">Resume now</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="vpn_permission_denied">VPN permission was denied, so filtering cannot start.</string>
+    <string name="notification_permission_needed">Allow notifications to see the live blocked counter in the status bar.</string>
+
+    <!-- notification -->
+    <string name="notif_channel_name">Protection status</string>
+    <string name="notif_channel_desc">Persistent notification with live blocking statistics and quick controls.</string>
+    <string name="notif_blocked_today">%1$d requests blocked today</string>
+    <string name="notif_paused_minutes">Paused, resumes in %1$d min</string>
+    <string name="notif_starting">Starting protection</string>
+    <string name="notif_action_pause">Pause 15 min</string>
+    <string name="notif_action_resume">Resume</string>
+    <string name="notif_action_stop">Stop</string>
+
+    <!-- apps -->
+    <string name="apps_search_hint">Search apps</string>
+    <string name="apps_show_system">Show system apps</string>
+    <string name="apps_excluded_summary">%1$d apps bypass filtering</string>
+    <string name="apps_hint">Switch an app off to let it bypass the filter. Useful for banking and VPN apps. Android also keeps this list for apps you explicitly exclude.</string>
+    <string name="apps_empty">No apps match this search.</string>
+    <string name="apps_rebuild_hint">Applying the new app list to the running filter.</string>
+
+    <!-- filters -->
+    <string name="tab_lists">Blocklists</string>
+    <string name="tab_whitelist">Whitelist</string>
+    <string name="tab_blacklist">Blacklist</string>
+    <string name="lists_summary">%1$d domains active from %2$d lists</string>
+    <string name="lists_add">Add list by URL</string>
+    <string name="lists_import">Import file</string>
+    <string name="lists_update_all">Update all</string>
+    <string name="lists_updating">Updating lists</string>
+    <string name="lists_updated_count">%1$d lists updated</string>
+    <string name="list_builtin">Built in</string>
+    <string name="list_custom">Custom</string>
+    <string name="list_domains">%1$d domains</string>
+    <string name="list_last_update">Updated %1$s</string>
+    <string name="list_never">Never updated</string>
+    <string name="list_enabled">Enabled</string>
+    <string name="list_add_title">Add blocklist</string>
+    <string name="list_name_label">List name</string>
+    <string name="list_url_label">List URL</string>
+    <string name="list_url_hint">https://example.com/hosts.txt</string>
+    <string name="whitelist_title">Whitelist</string>
+    <string name="whitelist_desc">Domains here are never blocked, for example a site that breaks.</string>
+    <string name="whitelist_hint">example.com</string>
+    <string name="blacklist_title">Blacklist</string>
+    <string name="blacklist_desc">Extra domains to block on top of your blocklists. Subdomains are covered too.</string>
+    <string name="blacklist_hint">ads.example.com</string>
+    <string name="rules_add">Add</string>
+    <string name="rules_empty">No custom rules yet.</string>
+    <string name="rules_invalid">Enter a valid domain, like example.com</string>
+    <string name="list_added">List added.</string>
+    <string name="list_imported">List imported.</string>
+    <string name="list_add_failed">Could not load that list. Check the address and your connection.</string>
+    <string name="list_invalid">No usable domains found in that source.</string>
+    <string name="vpn_error_establish">Could not start the local VPN. Another VPN app may be connected.</string>
+    <string name="vpn_revoked">Filtering stopped because the VPN permission was taken away or another VPN took over.</string>
+
+    <!-- settings -->
+    <string name="settings_dns_title">Upstream DNS</string>
+    <string name="settings_dns_desc">Where allowed lookups are forwarded. Encrypted DNS keeps your queries private from the network.</string>
+    <string name="dns_system">Automatic (device DNS)</string>
+    <string name="dns_cloudflare">Cloudflare 1.1.1.1</string>
+    <string name="dns_google">Google 8.8.8.8</string>
+    <string name="dns_quad9">Quad9 9.9.9.9</string>
+    <string name="dns_adguard">AdGuard DNS 94.140.14.14</string>
+    <string name="dns_custom">Custom DNS server</string>
+    <string name="dns_doh_cloudflare">Cloudflare over HTTPS</string>
+    <string name="dns_doh_google">Google over HTTPS</string>
+    <string name="dns_doh_adguard">AdGuard over HTTPS</string>
+    <string name="dns_doh_custom">Custom HTTPS endpoint</string>
+    <string name="dns_custom_hint">9.9.9.10</string>
+    <string name="dns_doh_url_hint">https://dns.example.com/dns-query</string>
+    <string name="settings_advanced_title">Advanced blocking</string>
+    <string name="settings_hijack_title">Block hardcoded DNS servers</string>
+    <string name="settings_hijack_desc">Apps that ignore the system resolver and talk straight to 8.8.8.8 or 1.1.1.1 get intercepted too, so they cannot dodge your blocklists.</string>
+    <string name="settings_doh_hosts_title">Block encrypted DNS providers</string>
+    <string name="settings_doh_hosts_desc">Blocks known DNS over HTTPS hostnames so apps and browsers cannot switch to an unfiltered resolver behind your back.</string>
+    <string name="settings_autostart_title">Start on boot</string>
+    <string name="settings_autostart_desc">Re-enable protection after the device restarts.</string>
+    <string name="settings_auto_update_title">Daily list updates</string>
+    <string name="settings_auto_update_desc">Download enabled blocklists once a day on Wi-Fi.</string>
+    <string name="settings_theme_title">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_root_title">System hosts file (root)</string>
+    <string name="settings_root_desc">With root, AdShield can write the merged blocklists into the system hosts file. That blocks ads even inside apps that use their own DNS or encrypted DNS, and it keeps working when the VPN is off.</string>
+    <string name="root_check">Check root</string>
+    <string name="root_available">Root access detected.</string>
+    <string name="root_unavailable">No root access on this device.</string>
+    <string name="root_install">Write hosts file</string>
+    <string name="root_restore">Restore original</string>
+    <string name="root_installed">%1$d domains written system-wide.</string>
+    <string name="root_restored">Original hosts file restored.</string>
+    <string name="root_failed">Failed: %1$s</string>
+    <string name="settings_data_title">Backup</string>
+    <string name="backup_export">Export settings</string>
+    <string name="backup_import">Import settings</string>
+    <string name="backup_exported">Backup saved.</string>
+    <string name="backup_imported">Backup restored.</string>
+    <string name="backup_failed">Could not read or write the file.</string>
+    <string name="settings_about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_body">AdShield filters DNS on-device through a local VPN, so no server ever sees your traffic. Pair it with the built-in browser for request-level and cosmetic ad blocking, and enable the hosts mode on rooted devices for system-wide blocking that no app can bypass.</string>
+
+    <!-- browser -->
+    <string name="browser_url_hint">Search or enter address</string>
+    <string name="browser_menu">Browser options</string>
+    <string name="browser_whitelist_site">Allow ads on this site</string>
+    <string name="browser_site_whitelisted">%1$s added to the whitelist</string>
+    <string name="browser_desktop_mode">Desktop site</string>
+    <string name="browser_strict_mode">Strict ad blocking</string>
+    <string name="browser_block_third_party">Block third-party requests</string>
+    <string name="browser_javascript">JavaScript</string>
+    <string name="browser_upgrade_https">Always try HTTPS</string>
+    <string name="browser_clear_data">Clear browsing data</string>
+    <string name="browser_clear_done">Browsing data cleared.</string>
+    <string name="browser_external">Open in another app</string>
+    <string name="browser_back">Back</string>
+    <string name="browser_forward">Forward</string>
+    <string name="browser_reload">Reload</string>
+    <string name="browser_go">Go</string>
+    <string name="browser_blocked_count">%1$d blocked on this page</string>
+    <string name="browser_block_page_title">Blocked by AdShield</string>
+    <string name="browser_block_page_body">This address is on your blocklist.</string>
+    <string name="browser_home">https://duckduckgo.com/</string>
+    <string name="browser_popups_blocked">Pop-ups are blocked</string>
+
+    <!-- common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_add">Add</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_delete_confirm">Delete this item?</string>
+    <string name="common_save">Save</string>
+    <string name="common_close">Close</string>
+    <string name="common_loading">Working…</string>
+</resources>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AdShield</string>
+
+    <!-- navigation -->
+    <string name="tab_home">בית</string>
+    <string name="tab_browser">דפדפן</string>
+    <string name="tab_apps">אפליקציות</string>
+    <string name="tab_filters">מסננים</string>
+    <string name="tab_settings">הגדרות</string>
+
+    <!-- dashboard -->
+    <string name="protection_title">הגנה</string>
+    <string name="protection_active">הסינון פעיל</string>
+    <string name="protection_off">ההגנה כבויה</string>
+    <string name="protection_paused">מושהה</string>
+    <string name="protection_desc_active">כל שאילתת DNS במכשיר עוברת דרך AdShield ונבדקת מול רשימות החסימה שלך.</string>
+    <string name="protection_desc_off">הפעל את ה-VPN המקומי כדי לסנן כל אפליקציה במכשיר. שום תעבורה לא יוצאת בלי סינון.</string>
+    <string name="protection_desc_paused">החסימה מושבתת זמנית. הסינון יתחדש אוטומטית.</string>
+    <string name="stat_blocked_today">נחסמו היום</string>
+    <string name="stat_blocked_total">נחסמו בסך הכל</string>
+    <string name="stat_queries_today">שאילתות DNS היום</string>
+    <string name="stat_rules">חוקים פעילים</string>
+    <string name="week_title">7 הימים האחרונים</string>
+    <string name="week_subtitle">בקשות חסומות לפי יום</string>
+    <string name="top_domains_title">הדומיינים החסומים המובילים</string>
+    <string name="top_domains_empty">עדיין לא נחסמה אף בקשה. גלש קצת וחזור לכאן.</string>
+    <string name="recent_title">פעילות בזמן אמת</string>
+    <string name="recent_empty">בקשות חסומות יופיעו כאן בזמן אמת.</string>
+    <string name="pause_title">השהיית החסימה</string>
+    <string name="pause_5">5 דקות</string>
+    <string name="pause_15">15 דקות</string>
+    <string name="pause_60">שעה</string>
+    <string name="resume_now">חזור לחסום</string>
+    <string name="dismiss">סגור</string>
+    <string name="vpn_permission_denied">הרשאת ה-VPN נדחתה, ולכן הסינון לא יכול להתחיל.</string>
+    <string name="notification_permission_needed">אפשר התראות כדי לראות את מונה החסימות בזמן אמת בשורת המצב.</string>
+
+    <!-- notification -->
+    <string name="notif_channel_name">מצב ההגנה</string>
+    <string name="notif_channel_desc">התראה קבועה עם סטטיסטיקת חסימה חיה ושליטה מהירה.</string>
+    <string name="notif_blocked_today">%1$d בקשות נחסמו היום</string>
+    <string name="notif_paused_minutes">מושהה, מתחדש בעוד %1$d דקות</string>
+    <string name="notif_starting">מפעיל את ההגנה</string>
+    <string name="notif_action_pause">השהה 15 דקות</string>
+    <string name="notif_action_resume">חדש חסימה</string>
+    <string name="notif_action_stop">עצור</string>
+
+    <!-- apps -->
+    <string name="apps_search_hint">חיפוש אפליקציות</string>
+    <string name="apps_show_system">הצג אפליקציות מערכת</string>
+    <string name="apps_excluded_summary">%1$d אפליקציות עוקפות את הסינון</string>
+    <string name="apps_hint">כבה מתג של אפליקציה כדי לאפשר לה לעקוף את הסינון. שימושי לאפליקציות בנקים ו-VPN.</string>
+    <string name="apps_empty">אין אפליקציות שמתאימות לחיפוש.</string>
+    <string name="apps_rebuild_hint">מחיל את רשימת האפליקציות החדשה על הסינון הפעיל.</string>
+
+    <!-- filters -->
+    <string name="tab_lists">רשימות חסימה</string>
+    <string name="tab_whitelist">רשימת היתר</string>
+    <string name="tab_blacklist">רשימה שחורה</string>
+    <string name="lists_summary">%1$d דומיינים פעילים מתוך %2$d רשימות</string>
+    <string name="lists_add">הוסף רשימה מקישור</string>
+    <string name="lists_import">ייבא קובץ</string>
+    <string name="lists_update_all">עדכן הכל</string>
+    <string name="lists_updating">מעדכן רשימות</string>
+    <string name="lists_updated_count">%1$d רשימות עודכנו</string>
+    <string name="list_builtin">מובנית</string>
+    <string name="list_custom">מותאמת</string>
+    <string name="list_domains">%1$d דומיינים</string>
+    <string name="list_last_update">עודכן %1$s</string>
+    <string name="list_never">לא עודכן מעולם</string>
+    <string name="list_enabled">פעילה</string>
+    <string name="list_add_title">הוספת רשימת חסימה</string>
+    <string name="list_name_label">שם הרשימה</string>
+    <string name="list_url_label">כתובת הרשימה</string>
+    <string name="list_url_hint">https://example.com/hosts.txt</string>
+    <string name="whitelist_title">רשימת היתר</string>
+    <string name="whitelist_desc">דומיינים כאן לא ייחסמו לעולם, למשל אתר שנשבר בגלל החסימה.</string>
+    <string name="whitelist_hint">example.com</string>
+    <string name="blacklist_title">רשימה שחורה</string>
+    <string name="blacklist_desc">דומיינים נוספים לחסימה מעבר לרשימות. גם תת-דומיינים נחסמים.</string>
+    <string name="blacklist_hint">ads.example.com</string>
+    <string name="rules_add">הוסף</string>
+    <string name="rules_empty">אין חוקים מותאמים עדיין.</string>
+    <string name="rules_invalid">הזן דומיין תקין, למשל example.com</string>
+    <string name="list_added">הרשימה נוספה.</string>
+    <string name="list_imported">הרשימה יובאה.</string>
+    <string name="list_add_failed">לא הצלחתי לטעון את הרשימה. בדוק את הכתובת ואת החיבור.</string>
+    <string name="list_invalid">לא נמצאו דומיינים שמישים במקור הזה.</string>
+    <string name="vpn_error_establish">לא הצלחתי להפעיל את ה-VPN המקומי. ייתכן שאפליקציית VPN אחרת מחוברת.</string>
+    <string name="vpn_revoked">הסינון נעצר כי הרשאת ה-VPN נלקחה או ש-VPN אחר תפס את מקומו.</string>
+
+    <!-- settings -->
+    <string name="settings_dns_title">שרת DNS</string>
+    <string name="settings_dns_desc">לאן נשלחות שאילתות מותרות. DNS מוצפן שומר על הפרטיות שלך מול הרשת.</string>
+    <string name="dns_system">אוטומטי (של המכשיר)</string>
+    <string name="dns_cloudflare">Cloudflare ‏1.1.1.1</string>
+    <string name="dns_google">Google ‏8.8.8.8</string>
+    <string name="dns_quad9">Quad9 ‏9.9.9.9</string>
+    <string name="dns_adguard">AdGuard DNS ‏94.140.14.14</string>
+    <string name="dns_custom">שרת DNS מותאם</string>
+    <string name="dns_doh_cloudflare">Cloudflare מעל HTTPS</string>
+    <string name="dns_doh_google">Google מעל HTTPS</string>
+    <string name="dns_doh_adguard">AdGuard מעל HTTPS</string>
+    <string name="dns_doh_custom">כתובת HTTPS מותאמת</string>
+    <string name="dns_custom_hint">9.9.9.10</string>
+    <string name="dns_doh_url_hint">https://dns.example.com/dns-query</string>
+    <string name="settings_advanced_title">חסימה מתקדמת</string>
+    <string name="settings_hijack_title">חסום שרתי DNS מקודדים</string>
+    <string name="settings_hijack_desc">אפליקציות שמתעלמות משרת ה-DNS של המערכת ומתחברות ישירות ל-8.8.8.8 או 1.1.1.1 ייורטו גם כן, כך שאי אפשר לעקוף את החסימה.</string>
+    <string name="settings_doh_hosts_title">חסום ספקי DNS מוצפן</string>
+    <string name="settings_doh_hosts_desc">חוסם שמות של ספקי DNS over HTTPS כדי שאפליקציות ודפדפנים לא יעברו בשקט לשרת לא מסונן.</string>
+    <string name="settings_autostart_title">הפעלה עם האתחול</string>
+    <string name="settings_autostart_desc">החזר את ההגנה לפעול אחרי שהמכשיר נדלק.</string>
+    <string name="settings_auto_update_title">עדכון רשימות יומי</string>
+    <string name="settings_auto_update_desc">הורדת רשימות החסימה הפעילות פעם ביום ב-Wi-Fi.</string>
+    <string name="settings_theme_title">מראה</string>
+    <string name="theme_system">לפי המערכת</string>
+    <string name="theme_light">בהיר</string>
+    <string name="theme_dark">כהה</string>
+    <string name="settings_root_title">קובץ hosts של המערכת (רוט)</string>
+    <string name="settings_root_desc">עם רוט, AdShield יכול לכתוב את רשימות החסימה לקובץ hosts של המערכת. כך גם אפליקציות שמשתמשות ב-DNS משלהן או ב-DNS מוצפן נחסמות, והחסימה ממשיכה לעבוד גם כשה-VPN כבוי.</string>
+    <string name="root_check">בדוק רוט</string>
+    <string name="root_available">זוהתה הרשאת רוט.</string>
+    <string name="root_unavailable">אין הרשאת רוט במכשיר הזה.</string>
+    <string name="root_install">כתוב קובץ hosts</string>
+    <string name="root_restore">שחזר מקור</string>
+    <string name="root_installed">%1$d דומיינים נכתבו ברמת המערכת.</string>
+    <string name="root_restored">קובץ hosts המקורי שוחזר.</string>
+    <string name="root_failed">נכשל: %1$s</string>
+    <string name="settings_data_title">גיבוי</string>
+    <string name="backup_export">ייצוא הגדרות</string>
+    <string name="backup_import">ייבוא הגדרות</string>
+    <string name="backup_exported">הגיבוי נשמר.</string>
+    <string name="backup_imported">הגיבוי שוחזר.</string>
+    <string name="backup_failed">לא ניתן לקרוא או לכתוב את הקובץ.</string>
+    <string name="settings_about_title">אודות</string>
+    <string name="about_version">גרסה %1$s</string>
+    <string name="about_body">AdShield מסנן DNS על המכשיר דרך VPN מקומי, כך שאף שרת לא רואה את התעבורה שלך. שלב אותו עם הדפדפן המובנה לחסימה ברמת הבקשה ובאלמנטים, והפעל את מצב hosts במכשירים עם רוט לחסימה מערכתית שאין דרך לעקוף.</string>
+
+    <!-- browser -->
+    <string name="browser_url_hint">חיפוש או כתובת</string>
+    <string name="browser_menu">אפשרויות דפדפן</string>
+    <string name="browser_whitelist_site">אפשר פרסומות באתר הזה</string>
+    <string name="browser_site_whitelisted">%1$s נוסף לרשימת ההיתר</string>
+    <string name="browser_desktop_mode">אתר למחשב</string>
+    <string name="browser_strict_mode">חסימה קפדנית</string>
+    <string name="browser_block_third_party">חסום בקשות צד שלישי</string>
+    <string name="browser_javascript">JavaScript</string>
+    <string name="browser_upgrade_https">נסה HTTPS תמיד</string>
+    <string name="browser_clear_data">נקה נתוני גלישה</string>
+    <string name="browser_clear_done">נתוני הגלישה נמחקו.</string>
+    <string name="browser_external">פתח באפליקציה אחרת</string>
+    <string name="browser_back">חזור</string>
+    <string name="browser_forward">קדימה</string>
+    <string name="browser_reload">רענן</string>
+    <string name="browser_go">עבור</string>
+    <string name="browser_blocked_count">%1$d נחסמו בעמוד הזה</string>
+    <string name="browser_block_page_title">נחסם על ידי AdShield</string>
+    <string name="browser_block_page_body">הכתובת הזו נמצאת ברשימת החסימה שלך.</string>
+    <string name="browser_home">https://duckduckgo.com/</string>
+    <string name="browser_popups_blocked">חלונות קופצים חסומים</string>
+
+    <!-- common -->
+    <string name="common_cancel">ביטול</string>
+    <string name="common_add">הוסף</string>
+    <string name="common_delete">מחק</string>
+    <string name="common_delete_confirm">למחוק את הפריט הזה?</string>
+    <string name="common_save">שמור</string>
+    <string name="common_close">סגור</string>
+    <string name="common_loading">עובד…</string>
+</resources>
