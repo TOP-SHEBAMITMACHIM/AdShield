@@ -1,219 +1,180 @@
-# AdShield — Android ad blocker (browser + system-wide)
+# AdShield — חוסם פרסומות ל־Android (בדפדפן וברמת המערכת)
 
-A no-root Android ad blocker that filters every DNS lookup on the device through a local
-`VpnService`, ships a built-in browser with request-level and cosmetic ad blocking, and can write
-the merged blocklists straight into the system hosts file on rooted devices.
+חוסם פרסומות ללא root שמסנן כל בקשת DNS במכשיר דרך `VpnService` מקומי, כולל דפדפן מובנה עם חסימה ברמת הבקשה ובאמצעים קוסמטיים. במכשירים עם root אפשר גם לכתוב את רשימות החסימה המאוחדות לקובץ hosts של המערכת.
 
-The UI is available in English and Hebrew (RTL).
+ממשק המשתמש זמין באנגלית ובעברית (RTL).
 
 ```
 ┌───────────────────────────── AdShield ──────────────────────────────┐
-│ Dashboard   live counters, 7-day chart, top domains, pause timers    │
-│ Browser     request blocking + cosmetic filters + popup blocking     │
-│ Apps        per-app exclusion (banking/VPN apps keep working)        │
-│ Filters     blocklists (URL/file/bundled), whitelist, blacklist      │
-│ Settings    encrypted DNS, bypass guards, root hosts mode, backup    │
+│ לוח בקרה       מונים חיים, גרף ל־7 ימים, דומיינים מובילים, השהיות   │
+│ דפדפן          חסימת בקשות, מסננים קוסמטיים וחסימת חלונות קופצים     │
+│ אפליקציות      החרגת אפליקציות (בנקאות/VPN ימשיכו לעבוד)             │
+│ מסננים         רשימות חסימה, רשימה לבנה, רשימה שחורה                 │
+│ הגדרות         DNS מוצפן, הגנות עקיפה, מצב hosts עם root, גיבוי        │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-## How blocking works
+## איך החסימה עובדת
 
-**1. System-wide DNS firewall (no root, default)**
+### 1. חומת DNS כלל־מערכתית (ללא root — מצב ברירת המחדל)
 
-The app opens a `VpnService` tunnel that routes only:
+האפליקציה פותחת מנהרת `VpnService` שמנתבת רק:
 
-* its own in-tunnel resolver address (`10.111.222.3` / `fd00:1:2:3::3`), and
-* the addresses of well known public resolvers (`1.1.1.1`, `8.8.8.8`, `9.9.9.9`, OpenDNS,
-  AdGuard, NextDNS, Quad9, Yandex, … IPv4 *and* IPv6).
+* את כתובת הפותר המקומית שלה (`10.111.222.3` / `fd00:1:2:3::3`), וכן
+* כתובות של פותרים ציבוריים מוכרים (`1.1.1.1`, `8.8.8.8`, `9.9.9.9`, OpenDNS, AdGuard, NextDNS, Quad9, Yandex ועוד — IPv4 ו־IPv6).
 
-Every DNS query that lands in the tunnel is parsed (IPv4 and IPv6, UDP 53), matched against the
-blocklists with suffix matching (`doubleclick.net` also blocks `ads.doubleclick.net`) and answered
-with `NXDOMAIN` when blocked. Allowed queries are relayed to the configured upstream resolver —
-plain UDP or DNS over HTTPS (RFC 8484) — and written back through the tunnel.
+כל שאילתת DNS שנכנסת למנהרה מפוענחת, מותאמת לרשימות החסימה בהתאמת סיומת (`doubleclick.net` חוסם גם את `ads.doubleclick.net`) ומקבלת תשובת `NXDOMAIN` אם היא חסומה. שאילתות מותרות מועברות לפותר שהוגדר — ב־UDP רגיל או ב־DNS over HTTPS (RFC 8484) — ונשלחות בחזרה דרך המנהרה.
 
-Because plain web/app traffic never enters the tunnel, battery use stays low, and because the
-resolver addresses are hijacked:
+מכיוון שתעבורת האינטרנט הרגילה אינה נכנסת למנהרה, צריכת הסוללה נשארת נמוכה. מכיוון שכתובות הפותרים נחטפות:
 
-* apps that hardcode `8.8.8.8` still get filtered,
-* apps that try DNS over TLS/HTTPS *to those addresses* get a `RST`, so they fall back to the
-  resolver the system hands out — which is ours,
-* IPv6 resolver bypasses are covered as well.
+* גם אפליקציות שמקבעות את `8.8.8.8` מקבלות סינון,
+* אפליקציות שמנסות DNS over TLS/HTTPS לכתובות האלה מקבלות `RST` וחוזרות לפותר שמספקת המערכת — שהוא שלנו,
+* גם נתיבי עקיפה דרך פותרי IPv6 מכוסים.
 
-Normal traffic (browsing, banking, streaming) keeps using the device network untouched.
+תעבורה רגילה (גלישה, בנקאות וסטרימינג) ממשיכה להשתמש ברשת המכשיר ללא שינוי.
 
-**2. Built-in browser (request-level + cosmetic)**
+### 2. דפדפן מובנה (חסימת בקשות וחסימה קוסמטית)
 
-The bundled WebView browser blocks *before* a request leaves the device:
+דפדפן ה־WebView המובנה חוסם לפני שהבקשה יוצאת מהמכשיר:
 
-* every host on your blocklists returns an empty response (or a block page for the main frame),
-* strict mode also kills known ad/tracker URL patterns (`/pagead/`, `/adserver`, `doubleclick`,
-  `/prebid`, `gtag/js`, …),
-* an optional aggressive mode blocks all third-party requests,
-* cosmetic filtering hides leftover ad slots, sponsored widgets and cookie walls through injected
-  CSS plus a `MutationObserver` sweep,
-* popups (`window.open`) are disabled, third-party cookies are off, HTTP is upgraded to HTTPS,
-  and "allow ads on this site" adds the current host to the whitelist in one tap.
+* כל host שנמצא ברשימות החסימה מחזיר תגובה ריקה, או דף חסימה עבור המסגרת הראשית.
+* במצב מחמיר נחסמות גם תבניות מוכרות של כתובות פרסומת ומעקב (`/pagead/`, `/adserver`, `doubleclick`, `/prebid`, `gtag/js` ועוד).
+* במצב אגרסיבי אפשר לחסום את כל הבקשות מצד שלישי.
+* חסימה קוסמטית מסתירה משבצות פרסומת, ווידג'טים ממומנים וחומות עוגיות באמצעות CSS מוזרק וסריקה עם `MutationObserver`.
+* חלונות קופצים (`window.open`) מושבתים, עוגיות צד שלישי חסומות, HTTP משודרג ל־HTTPS, ופעולת “אפשר פרסומות באתר הזה” מוסיפה את ה־host הנוכחי לרשימה הלבנה בנגיעה אחת.
 
-**3. Optional root mode (fully hermetic)**
+### 3. מצב root אופציונלי (מלא)
 
-On a rooted device AdShield can merge every enabled list into the system hosts file
-(`0.0.0.0 domain` **and** `:: domain`, so IPv6 lookups are blocked too) using a bind mount from
-`/data/local/tmp` or a direct write after remounting. This blocks ads even in apps that use their
-own DNS or encrypted DNS, and it keeps working while the VPN is off. A backup of the original
-hosts file is kept and can be restored from the app.
+במכשיר עם root, AdShield יכולה למזג את כל הרשימות הפעילות לקובץ hosts של המערכת (`0.0.0.0 domain` וגם `:: domain`, כך שגם שאילתות IPv6 נחסמות). הכתיבה מתבצעת באמצעות bind mount מ־`/data/local/tmp` או בכתיבה ישירה לאחר remount. כך נחסמות פרסומות גם באפליקציות שמשתמשות ב־DNS משלהן או ב־DNS מוצפן, והחסימה ממשיכה לעבוד כשה־VPN כבוי. נשמר גיבוי של קובץ hosts המקורי ואפשר לשחזר אותו מהאפליקציה.
 
-## Features
+## יכולות
 
-* Live dashboard: blocked today / total, queries today, active rule count, 7-day bar chart, live
-  activity feed, top blocked domains — updated in real time without restarting the app.
-* Blocklists: bundled starter list (upgradeable to the full StevenBlack hosts list in one tap), add
-  any list by URL, import a **hosts file**, a plain domain list, an `http(s)://…` URL list or
-  `||domain^` Adblock-style syntax, enable/disable each list, per-list domain counts.
-* Daily automatic list refresh through WorkManager (Wi-Fi only, optional).
-* Whitelist and blacklist with URL/wildcard normalisation; whitelist always wins.
-* Per-app filtering: exclude apps (banking, VPN clients) — the tunnel is rebuilt instantly.
-* Pause 5/15/60 minutes from the app or from the notification; resumes automatically.
-* Persistent notification with live counter and quick actions.
-* Quick Settings tile to toggle protection.
-* Start on boot, restart after app update.
-* Upstream resolver choice: system DNS, Cloudflare, Google, Quad9, AdGuard, custom, or DoH
-  endpoints (Cloudflare / Google / AdGuard / custom URL) with UDP fallback.
-* Bypass guards: hijack hardcoded resolvers, block known encrypted-DNS provider hostnames.
-* Statistics persisted across restarts (daily buckets, top domains, recent activity).
-* Export/import settings, rules, exclusions and custom list URLs as JSON.
-* Material 3 UI with dynamic colour (Android 12+), light/dark/system themes, Hebrew + English.
+* לוח בקרה חי: חסימות היום/סה״כ, שאילתות היום, מספר כללים פעילים, גרף יומי ל־7 ימים, פיד פעילות חי ודומיינים מובילים — מתעדכן בזמן אמת בלי להפעיל מחדש את האפליקציה.
+* רשימות חסימה: רשימת פתיחה מובנית (ניתנת לשדרוג לרשימת hosts המלאה של StevenBlack בנגיעה אחת), הוספת רשימות מ־URL, ייבוא קובץ **hosts**, רשימת דומיינים פשוטה, רשימת URL מסוג `http(s)://…` או תחביר Adblock מסוג `||domain^`. אפשר להפעיל ולכבות כל רשימה ולראות את מספר הדומיינים בכל אחת.
+* עדכון יומי אוטומטי של הרשימות באמצעות WorkManager (Wi‑Fi בלבד, לבחירה).
+* רשימה לבנה ורשימה שחורה עם נרמול URL ותווים כלליים; הרשימה הלבנה תמיד גוברת.
+* סינון לפי אפליקציה: החרגת אפליקציות (למשל בנקאות או לקוחות VPN) — המנהרה נבנית מחדש מיד.
+* השהיה ל־5/15/60 דקות מהאפליקציה או מההתראה; החסימה חוזרת אוטומטית.
+* התראה קבועה עם מונה חי ופעולות מהירות.
+* אריח Quick Settings להפעלה וכיבוי של ההגנה.
+* הפעלה בעת אתחול והפעלה מחדש לאחר עדכון האפליקציה.
+* בחירת פותר: DNS של המערכת, Cloudflare, Google, Quad9, AdGuard, מותאם אישית או נקודות קצה של DoH (Cloudflare / Google / AdGuard / URL מותאם אישית), עם fallback ל־UDP.
+* הגנות עקיפה: חטיפת פותרים מקובעים וחסימת שמות host של ספקי DNS מוצפן מוכרים.
+* סטטיסטיקות שנשמרות לאחר הפעלה מחדש: מקבצים יומיים, דומיינים מובילים ופעילות אחרונה.
+* ייצוא וייבוא של הגדרות, כללים, החרגות וכתובות רשימות מותאמות אישית כ־JSON.
+* ממשק Material 3 עם צבעים דינמיים (Android 12 ומעלה), ערכות בהירה/כהה/מערכת ותמיכה בעברית ובאנגלית.
 
-## Build
+## בנייה
 
-Requirements: **JDK 17**, **Android SDK with compileSdk 35 and build-tools 35.0.0**, Gradle 8.9.
+דרישות: **JDK 17**, **Android SDK עם compileSdk 35 ו־build-tools 35.0.0**, Gradle 8.9.
 
-### This workspace already has the toolchain
+### ערכת הכלים כבר נמצאת בסביבת העבודה
 
-A complete toolchain was installed inside the project under `.toolchain/` (gitignored), so there is
-nothing left to download here:
+ערכת כלים מלאה מותקנת בתוך הפרויקט תחת `.toolchain/` (ומוחרגת מ־Git), כך שאין צורך להוריד דבר נוסף כאן:
 
-| Path | Contents |
+| נתיב | תוכן |
 | --- | --- |
 | `.toolchain/jdk` | Temurin JDK 17.0.20.1 |
 | `.toolchain/gradle-8.9` | Gradle 8.9 |
 | `.toolchain/android-sdk` | cmdline-tools 12.0, platform-tools, `platforms;android-35`, `build-tools;35.0.0` |
-| `.toolchain/gradle-home` | Gradle dependency cache (kept in the workspace, not in `~/.gradle`) |
+| `.toolchain/gradle-home` | מטמון תלויות Gradle בתוך הפרויקט |
 
 ```bash
-tools/build-windows.sh                          # debug APK
-tools/build-windows.sh :app:assembleRelease     # release APK (R8 + resource shrinking)
+tools/build-windows.sh                          # APK debug
+tools/build-windows.sh :app:assembleRelease     # APK release (R8 + צמצום משאבים)
 tools/build-windows.sh :app:testDebugUnitTest :app:lintDebug
 ```
 
-The helper exists because this project path contains Hebrew characters and spaces: `cmd.exe`
-encodes its arguments with the Windows ANSI code page and mangles them, so the script reaches the
-tools through a short ASCII `S:` SUBST mapping of the same folder — nothing is copied, moved or
-renamed. It creates the mapping when it is missing and is safe to re-run. `local.properties` points
-at the same mapped SDK and is regenerated by Android Studio when the project is opened there.
+הסקריפט קיים משום שנתיב הפרויקט עשוי להכיל תווים בעברית ורווחים: `cmd.exe` מקודד ארגומנטים לפי דף הקוד ANSI של Windows ועלול לשבש אותם. לכן הסקריפט ניגש לכלים דרך מיפוי `S:` קצר ב־`SUBST` של אותה תיקייה — שום דבר אינו מועתק, מוזז או משנה שם. המיפוי נוצר אם הוא חסר ובטוח להרצה חוזרת.
 
-### Any other machine (Linux, macOS, plain Windows path)
+### מחשב אחר (Linux, macOS או נתיב Windows רגיל)
 
 ```bash
-gradle wrapper --gradle-version 8.9   # the wrapper JAR is binary, so it is not committed here
+gradle wrapper --gradle-version 8.9   # קובץ ה־wrapper בינארי ולכן אינו נשמר כאן
 ./gradlew :app:assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The app needs no account, no server and no analytics. On first start, switch **Protection** on and
-accept the Android VPN consent dialog. Android shows its own VPN key icon in the status bar next to
-the AdShield notification — that is normal for any local VPN firewall.
+האפליקציה אינה דורשת חשבון, שרת או כלי ניתוח. בהפעלה הראשונה הפעילו **Protection** ואשרו את חלון ההסכמה של Android ל־VPN. סמל מפתח VPN בשורת המצב לצד ההתראה של AdShield הוא תקין — כך פועל כל חומת VPN מקומית.
 
-## What was verified here
+## מה אומת
 
-| Check | Result |
+| בדיקה | תוצאה |
 | --- | --- |
-| `:app:assembleDebug` | `app/build/outputs/apk/debug/app-debug.apk`, 16 MB, `com.adshield.app`, minSdk 24, target 35, VPN service + all permissions present |
-| `:app:assembleRelease` | `app/build/outputs/apk/release/app-release-unsigned.apk`, **1.3 MB** with R8 + resource shrinking |
-| `:app:testDebugUnitTest` | **27 tests, 0 failures** |
-| `:app:lintDebug` | **0 errors**, 25 warnings |
-| `python3 tools/verify_project.py` | all resource references resolve, XML valid, brackets balanced, 153 strings in both languages |
+| `:app:assembleDebug` | `app/build/outputs/apk/debug/app-debug.apk`, כ־16MB, `com.adshield.app`, ‏minSdk 24, ‏target 35, שירות VPN וכל ההרשאות קיימים |
+| `:app:assembleRelease` | `app/build/outputs/apk/release/app-release-unsigned.apk`, כ־1.3MB עם R8 וצמצום משאבים |
+| `:app:testDebugUnitTest` | **27 בדיקות, 0 כשלים** |
+| `:app:lintDebug` | **0 שגיאות**, 25 אזהרות |
+| `python tools/verify_project.py` | כל הפניות למשאבים תקינות, XML תקין, סוגריים מאוזנים, 153 מחרוזות בשתי השפות |
 
-R8 keeps the classes the system instantiates by name — `AdVpnService`, `MainActivity`,
-`AdShieldTileService`, `BootReceiver`, `DailyUpdateWorker` are unrenamed in
-`app/build/outputs/mapping/release/mapping.txt` — while the rest of the code is obfuscated.
+R8 שומר את המחלקות שהמערכת מפעילה לפי שם — `AdVpnService`, `MainActivity`, `AdShieldTileService`, `BootReceiver`, `DailyUpdateWorker` — ללא שינוי שם בקובץ המיפוי של release; שאר הקוד עובר ערפול.
 
-The unit tests cover the parts that decide whether blocking actually works:
+בדיקות היחידה מכסות את החלקים שקובעים אם החסימה עובדת בפועל:
 
-* DNS query parsing (single question, long names, compression pointers, responses, empty queries),
-* `NXDOMAIN` / `SERVFAIL` response construction and transaction-id matching,
-* IPv4 and IPv6 UDP packet building, validating **both the IP header checksum and the UDP
-  pseudo-header checksum** with an independent calculation,
-* TCP RST generation (endpoint swap, flags, sequence/acknowledgement numbers),
-* blocklist suffix matching, whitelist/blacklist precedence, case and trailing-dot handling,
-* hosts-file, Adblock (`||domain^`), URL and bundled-list parsing, including the guarantee that
-  `localhost` and raw addresses never become rules.
+* פענוח שאילתות DNS (שאלה יחידה, שמות ארוכים, מצביעי דחיסה, תשובות ושאילתות ריקות).
+* בניית תשובות `NXDOMAIN` / `SERVFAIL` והתאמת מזהה עסקה.
+* בניית מנות UDP ב־IPv4 וב־IPv6, כולל בדיקת checksum של כותרת ה־IP ושל פסאודו־כותרת ה־UDP.
+* יצירת TCP RST (החלפת נקודות קצה, דגלים, מספרי רצף ואישור).
+* התאמת סיומות ברשימות חסימה, קדימות רשימה לבנה/שחורה וטיפול באותיות ובנקודה מסיימת.
+* פענוח קובצי hosts, Adblock (`||domain^`), כתובות URL ורשימה מובנית, כולל הבטחה ש־`localhost` וכתובות raw לא יהפכו לכללים.
 
-Lint earned its keep: it caught three genuine bugs that were then fixed — the missing
-notification-permission check before `notify()`, `Process.waitFor(timeout, unit)` being API 26 while
-the app supports 24, and the deprecated Quick Settings tile API on older devices. The fourth lint
-error (`foregroundServiceType="systemExempted"` wanting an exact-alarm permission) is a static
-false positive: the Android docs list *VPN apps configured with VpnService* as a qualifying
-criterion for that type, so it is suppressed on that single service element with a comment.
+Lint מצא ותיקן שלוש תקלות אמיתיות: בדיקת הרשאת ההתראות לפני `notify()`, שימוש ב־`Process.waitFor(timeout, unit)` שאינו זמין ב־API 24–25, ו־API מיושן של אריח Quick Settings במכשירים ישנים. שגיאת ה־lint הרביעית בנושא `foregroundServiceType="systemExempted"` היא false positive סטטי: תיעוד Android מציין שאפליקציות VPN המשתמשות ב־`VpnService` עומדות בתנאי הסוג הזה, ולכן השגיאה מושתקת רק ברכיב השירות הרלוונטי.
 
-**Not verified:** the app has not run on a device or emulator (none exists in this environment), so
-the VPN consent dialog, tunnel establishment and real-world blocking have not been exercised at
-runtime. Protocol logic is unit tested; everything else is compile-, lint- and package-level
-verification.
+**לא אומת:** האפליקציה לא הופעלה על מכשיר או אמולטור בסביבה הזו, משום שלא היה מכשיר זמין. חלון אישור ה־VPN, הקמת המנהרה והחסימה בעולם האמיתי טרם נבדקו בזמן ריצה. לוגיקת הפרוטוקולים נבדקה בבדיקות יחידה; שאר הרכיבים עברו קומפילציה, lint ובדיקות חבילה.
 
-### Static checks without any SDK
+### בדיקות סטטיות ללא SDK
 
 ```bash
-python3 tools/verify_project.py
+python tools/verify_project.py
 ```
 
-## Permissions
+## הרשאות
 
-| Permission | Why |
+| הרשאה | הסיבה |
 | --- | --- |
-| `INTERNET`, `ACCESS_NETWORK_STATE` | relay allowed DNS queries, download blocklists, read the current network's DNS |
-| `BIND_VPN_SERVICE` (declared by the system) | the local filter tunnel |
-| `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SYSTEM_EXEMPTED` | keep filtering alive with a visible notification |
-| `POST_NOTIFICATIONS` | live counter notification (Android 13+) |
-| `RECEIVE_BOOT_COMPLETED` | optional start on boot |
-| `QUERY_ALL_PACKAGES` | list installed apps for per-app exclusions |
+| `INTERNET`, `ACCESS_NETWORK_STATE` | העברת שאילתות DNS מותרות, הורדת רשימות וקריאת DNS של הרשת הנוכחית |
+| `BIND_VPN_SERVICE` (מוצהרת על ידי המערכת) | מנהרת הסינון המקומית |
+| `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SYSTEM_EXEMPTED` | שמירת הסינון פעיל עם התראה גלויה |
+| `POST_NOTIFICATIONS` | התראת מונה חי (Android 13 ומעלה) |
+| `RECEIVE_BOOT_COMPLETED` | הפעלה אופציונלית בעת אתחול |
+| `QUERY_ALL_PACKAGES` | הצגת אפליקציות מותקנות לצורך החרגות |
 
-No data ever leaves the device: blocklists are downloaded, lookups are resolved anonymously,
-statistics live in the app's private storage.
+שום מידע אינו עוזב את המכשיר: רשימות חסימה מורדות, שאילתות נפתרות באופן אנונימי והסטטיסטיקות נשמרות באחסון הפרטי של האפליקציה.
 
-## Limitations (please read)
+## מגבלות — חשוב לקרוא
 
-* Filtering happens at DNS level. An app that ships its own resolver *and* talks to an address not
-  in the hijack list could still resolve names; the "block encrypted DNS providers" switch closes
-  the common cases, and the root hosts mode closes all of them.
-* Blocking a domain breaks anything that shares it. If a site or app misbehaves, add its domain to
-  the whitelist (the browser has a one-tap action for that).
-* `connect.facebook.net` is in the starter list; some apps' "log in with Facebook" flows need it
-  whitelisted.
-* The system hosts file written in root mode is lost after a reboot (the bind mount is not
-  persistent) — write it again from Settings, or keep using VPN filtering.
-* This is a tool for your own device. It is not meant to defeat filters, parental controls or
-  network policies that are enforced on equipment you do not own.
+* הסינון מתבצע ברמת DNS. אפליקציה שמכילה פותר משלה ומדברת לכתובת שאינה ברשימת החטיפה עדיין עשויה לפתור שמות. האפשרות “חסימת ספקי DNS מוצפן” מכסה את המקרים הנפוצים, ומצב root עם hosts מכסה את כולם.
+* חסימת דומיין עלולה לשבור כל דבר שמשתמש בו. אם אתר או אפליקציה מתנהגים בצורה לא תקינה, הוסיפו את הדומיין לרשימה הלבנה.
+* `connect.facebook.net` נמצא ברשימת הפתיחה; תהליכי “התחברות באמצעות Facebook” באפליקציות מסוימות עשויים לדרוש הוספה לרשימה הלבנה.
+* קובץ hosts של המערכת במצב root אובד לאחר אתחול (ה־bind mount אינו קבוע) — יש לכתוב אותו מחדש מההגדרות, או להמשיך להשתמש בסינון VPN.
+* זהו כלי למכשיר שלכם. אין להשתמש בו כדי לעקוף מסננים, בקרת הורים או מדיניות רשת המוחלות על ציוד שאינו בבעלותכם.
 
-## Project layout
+## מבנה הפרויקט
 
 ```
 app/src/main/java/com/adshield/app/
-  AdShieldApp.kt              application, notification channel, worker scheduling
-  MainActivity.kt             Compose host + VPN consent flow
-  core/                       EngineState (live UI state), AppGraph (DI), Format helpers
+  AdShieldApp.kt              אפליקציה, ערוץ התראות ותזמון worker
+  MainActivity.kt             מארח Compose ותהליך אישור VPN
+  core/                       EngineState, AppGraph ועוזרי תצוגה
   data/                       SettingsStore, StatsStore, RulesStore, BlocklistRepository,
                               AppsRepository, BackupManager
-  filter/                     FilterEngine (suffix matching), DohHosts (bypass guard list)
-  vpn/                        AdVpnService (tunnel + DNS firewall), Net (IPv4/IPv6/UDP/TCP),
+  filter/                     FilterEngine (התאמת סיומות), DohHosts (רשימת הגנת עקיפה)
+  vpn/                        AdVpnService (מנהרה וחומת DNS), Net (IPv4/IPv6/UDP/TCP),
                               DnsMessage, DnsUpstream (UDP + DoH), ResolverIps
-  browser/                    AdBlockWebViewClient (request blocking), CosmeticFilter (CSS+JS)
-  ui/                         Dashboard, Browser, Apps, Filters, Settings, theme, shared widgets
-  root/                       RootHostsManager (optional hosts-file mode)
-  tile/, boot/, work/         Quick Settings tile, boot receiver, daily update worker
-app/src/test/java/com/adshield/app/   27 unit tests for packets, DNS, filters and list parsing
-app/src/main/assets/default_blocklist.txt    bundled starter blocklist
-app/src/main/res/values-iw/                  Hebrew translation
-tools/verify_project.py                      static project checker (no SDK needed)
-tools/build-windows.sh                       one-command build using .toolchain/
-.toolchain/                                  local JDK + Gradle + Android SDK (gitignored)
+  browser/                    AdBlockWebViewClient, CosmeticFilter
+  ui/                         מסכי Dashboard, Browser, Apps, Filters, Settings, theme ורכיבים משותפים
+  root/                       RootHostsManager (מצב קובץ hosts אופציונלי)
+  tile/, boot/, work/         אריח Quick Settings, מקלט אתחול ו־worker לעדכון יומי
+app/src/test/java/com/adshield/app/   27 בדיקות יחידה למנות, DNS, מסננים ופענוח רשימות
+app/src/main/assets/default_blocklist.txt    רשימת פתיחה מובנית
+app/src/main/res/values-iw/                  תרגום לעברית
+ tools/verify_project.py                     בודק סטטי של הפרויקט ללא SDK
+tools/build-windows.sh                       בנייה בפקודה אחת באמצעות `.toolchain/`
+.toolchain/                                  JDK, Gradle ו־Android SDK מקומיים (מוחרגים מ־Git)
 ```
+
+## התקנת APK מ־GitHub
+
+הורידו את הקובץ `app-debug.apk` מעמוד ה־Release, פתחו אותו במכשיר Android ואשרו התקנה ממקור זה אם Android מבקש זאת. לאחר ההתקנה פתחו את AdShield, הפעילו את ההגנה ואשרו את הרשאת ה־VPN.
+
+ה־APK של Release הוא build לצורכי פיתוח וחתום במפתח debug. לפרסום בחנות או להפצה רשמית יש ליצור מפתח חתימה ייעודי ולבנות גרסת release חתומה.
