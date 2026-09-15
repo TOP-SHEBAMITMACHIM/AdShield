@@ -216,6 +216,7 @@ fun SettingsScreen() {
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             BlockedToastNotifier(context)
                                 .showSample(context.getString(R.string.settings_toast_sample_domain))
@@ -249,9 +250,15 @@ fun SettingsScreen() {
                 title = stringResource(R.string.settings_root_title),
                 subtitle = stringResource(R.string.settings_root_desc)
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                // Stacked: three buttons in one Row left each of them too narrow for its label
+                // on a small screen. Same fix as the blocklist actions in the Filters screen.
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedButton(
                         enabled = !busy,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
                                 busy = true
@@ -266,6 +273,7 @@ fun SettingsScreen() {
 
                     OutlinedButton(
                         enabled = !busy,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
                                 busy = true
@@ -285,6 +293,7 @@ fun SettingsScreen() {
 
                     OutlinedButton(
                         enabled = !busy,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             scope.launch {
                                 busy = true
@@ -304,14 +313,19 @@ fun SettingsScreen() {
 
         item {
             SectionCard(title = stringResource(R.string.settings_data_title)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     OutlinedButton(
                         enabled = !busy,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { exportLauncher.launch("adshield-backup.json") }
                     ) { Text(stringResource(R.string.backup_export)) }
 
                     OutlinedButton(
                         enabled = !busy,
+                        modifier = Modifier.fillMaxWidth(),
                         onClick = { importLauncher.launch(arrayOf("application/json", "text/*", "*/*")) }
                     ) { Text(stringResource(R.string.backup_import)) }
                 }

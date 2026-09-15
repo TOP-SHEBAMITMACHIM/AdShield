@@ -58,7 +58,10 @@
     <string name="tab_lists">Blocklists</string>
     <string name="tab_whitelist">Whitelist</string>
     <string name="tab_blacklist">Blacklist</string>
-    <string name="lists_summary">%1$d domains active from %2$d lists</string>
+    <plurals name="lists_summary">
+        <item quantity="one">%1$d domains active from one list</item>
+        <item quantity="other">%1$d domains active from %2$d lists</item>
+    </plurals>
     <string name="lists_add">Add list by URL</string>
     <string name="lists_import">Import file</string>
     <string name="lists_update_all">Update all</string>
@@ -66,7 +69,10 @@
     <string name="lists_updated_count">%1$d lists updated</string>
     <string name="list_builtin">Built in</string>
     <string name="list_custom">Custom</string>
-    <string name="list_domains">%1$d domains</string>
+    <plurals name="list_domains">
+        <item quantity="one">%1$d domain</item>
+        <item quantity="other">%1$d domains</item>
+    </plurals>
     <string name="list_last_update">Updated %1$s</string>
     <string name="list_never">Never updated</string>
     <string name="list_enabled">Enabled</string>

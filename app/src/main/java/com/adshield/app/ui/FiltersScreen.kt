@@ -30,6 +30,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.adshield.app.R
 import com.adshield.app.core.AppGraph
@@ -97,15 +101,36 @@ private fun ListsTab() {
 
     Column(modifier = Modifier.fillMaxSize()) {
         SectionCard(
-            title = stringResource(R.string.lists_summary, rules, lists.size),
+            title = pluralStringResource(R.plurals.lists_summary, lists.size, rules, lists.size),
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { showAddDialog = true }, enabled = !busy) {
-                    Text(stringResource(R.string.lists_add))
+            // Stacked instead of side by side: on a narrow screen a Row squeezed the second
+            // button until its Hebrew label wrapped letter by letter.
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showAddDialog = true },
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(R.string.lists_add),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-                OutlinedButton(onClick = { importLauncher.launch(arrayOf("text/plain", "text/*", "*/*")) }, enabled = !busy) {
-                    Text(stringResource(R.string.lists_import))
+                OutlinedButton(
+                    onClick = { importLauncher.launch(arrayOf("text/plain", "text/*", "*/*")) },
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        stringResource(R.string.lists_import),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -205,7 +230,7 @@ private fun ListCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        stringResource(R.string.list_domains, meta.count),
+                        pluralStringResource(R.plurals.list_domains, meta.count, meta.count),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -227,13 +252,20 @@ private fun ListCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             meta.url?.let { url ->
-                Text(
-                    url,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                // A hosts URL is long and Latin. Laid out inside the RTL screen its line was
+                // shifted out of the card and clipped from the left, so it gets an LTR paragraph
+                // of its own and an ellipsis at the end.
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    Text(
+                        url,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

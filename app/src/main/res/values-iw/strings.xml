@@ -58,7 +58,12 @@
     <string name="tab_lists">רשימות חסימה</string>
     <string name="tab_whitelist">רשימת היתר</string>
     <string name="tab_blacklist">רשימה שחורה</string>
-    <string name="lists_summary">%1$d דומיינים פעילים מתוך %2$d רשימות</string>
+    <plurals name="lists_summary">
+        <item quantity="one">%1$d דומיינים פעילים מתוך רשימה אחת</item>
+        <item quantity="two">%1$d דומיינים פעילים מתוך שתי רשימות</item>
+        <item quantity="many">%1$d דומיינים פעילים מתוך %2$d רשימות</item>
+        <item quantity="other">%1$d דומיינים פעילים מתוך %2$d רשימות</item>
+    </plurals>
     <string name="lists_add">הוסף רשימה מקישור</string>
     <string name="lists_import">ייבא קובץ</string>
     <string name="lists_update_all">עדכן הכל</string>
@@ -66,7 +71,12 @@
     <string name="lists_updated_count">%1$d רשימות עודכנו</string>
     <string name="list_builtin">מובנית</string>
     <string name="list_custom">מותאמת</string>
-    <string name="list_domains">%1$d דומיינים</string>
+    <plurals name="list_domains">
+        <item quantity="one">דומיין אחד</item>
+        <item quantity="two">שני דומיינים</item>
+        <item quantity="many">%1$d דומיינים</item>
+        <item quantity="other">%1$d דומיינים</item>
+    </plurals>
     <string name="list_last_update">עודכן %1$s</string>
     <string name="list_never">לא עודכן מעולם</string>
     <string name="list_enabled">פעילה</string>
