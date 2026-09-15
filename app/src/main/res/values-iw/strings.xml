@@ -114,6 +114,12 @@
     <string name="settings_autostart_desc">החזר את ההגנה לפעול אחרי שהמכשיר נדלק.</string>
     <string name="settings_auto_update_title">עדכון רשימות יומי</string>
     <string name="settings_auto_update_desc">הורדת רשימות החסימה הפעילות פעם ביום ב-Wi-Fi.</string>
+    <string name="settings_toast_title">הודעת פרסומת נחסמה</string>
+    <string name="settings_toast_desc">מציג הודעה קצרה בכל פעם שפרסומת נחסמת בזמן שאפליקציה אחרת בחזית. הודעה אחת לכל כמה שניות בלבד, כדי שפרץ של חסימות לא יציף את המסך. יש מכשירים שמסתירים הודעות מאפליקציות שאינן על המסך — השתמשו בכפתור הבדיקה כדי לבדוק במכשיר שלכם.</string>
+    <string name="settings_toast_test">הצג הודעת בדיקה</string>
+    <string name="settings_toast_sample_domain">ads.tracker.example.com</string>
+    <string name="toast_ad_blocked">פרסומת נחסמה: %1$s</string>
+
     <string name="settings_theme_title">מראה</string>
     <string name="theme_system">לפי המערכת</string>
     <string name="theme_light">בהיר</string>

@@ -56,6 +56,7 @@
 * סינון לפי אפליקציה: החרגת אפליקציות (למשל בנקאות או לקוחות VPN) — המנהרה נבנית מחדש מיד.
 * השהיה ל־5/15/60 דקות מהאפליקציה או מההתראה; החסימה חוזרת אוטומטית.
 * התראה קבועה עם מונה חי ופעולות מהירות.
+* **הודעת “פרסומת נחסמה”** (חדש ב־1.1.0): הודעה קצרה מופיעה כאשר פרסומת נחסמת בזמן שאפליקציה אחרת בחזית, עם הדומיין שנחסם. ההודעה מוגבלת לאחת לכל 4 שניות כדי שפרץ של חסימות לא יציף את המסך, אינה מופיעה כשמסך האפליקציה פתוח או כשהמסך כבוי, ואפשר לכבות אותה בהגדרות או לבדוק אותה בכפתור בדיקה.
 * אריח Quick Settings להפעלה וכיבוי של ההגנה.
 * הפעלה בעת אתחול והפעלה מחדש לאחר עדכון האפליקציה.
 * בחירת פותר: DNS של המערכת, Cloudflare, Google, Quad9, AdGuard, מותאם אישית או נקודות קצה של DoH (Cloudflare / Google / AdGuard / URL מותאם אישית), עם fallback ל־UDP.
@@ -101,11 +102,11 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 | בדיקה | תוצאה |
 | --- | --- |
-| `:app:assembleDebug` | `app/build/outputs/apk/debug/app-debug.apk`, כ־16MB, `com.adshield.app`, ‏minSdk 24, ‏target 35, שירות VPN וכל ההרשאות קיימים |
+| `:app:assembleDebug` | `app/build/outputs/apk/debug/AdShield.apk`, כ־16MB, `com.adshield.app`, ‏versionCode 2 / ‏versionName 1.1.0, ‏minSdk 24, ‏target 35, שירות VPN וכל ההרשאות קיימים |
 | `:app:assembleRelease` | `app/build/outputs/apk/release/app-release-unsigned.apk`, כ־1.3MB עם R8 וצמצום משאבים |
-| `:app:testDebugUnitTest` | **27 בדיקות, 0 כשלים** |
-| `:app:lintDebug` | **0 שגיאות**, 25 אזהרות |
-| `python tools/verify_project.py` | כל הפניות למשאבים תקינות, XML תקין, סוגריים מאוזנים, 153 מחרוזות בשתי השפות |
+| `:app:testDebugUnitTest` | **37 בדיקות, 0 כשלים** |
+| `:app:lintDebug` | **0 שגיאות**, 21 אזהרות |
+| `python tools/verify_project.py` | כל הפניות למשאבים תקינות, XML תקין, סוגריים מאוזנים, 158 מחרוזות בשתי השפות |
 
 R8 שומר את המחלקות שהמערכת מפעילה לפי שם — `AdVpnService`, `MainActivity`, `AdShieldTileService`, `BootReceiver`, `DailyUpdateWorker` — ללא שינוי שם בקובץ המיפוי של release; שאר הקוד עובר ערפול.
 
@@ -117,6 +118,7 @@ R8 שומר את המחלקות שהמערכת מפעילה לפי שם — `AdV
 * יצירת TCP RST (החלפת נקודות קצה, דגלים, מספרי רצף ואישור).
 * התאמת סיומות ברשימות חסימה, קדימות רשימה לבנה/שחורה וטיפול באותיות ובנקודה מסיימת.
 * פענוח קובצי hosts, Adblock (`||domain^`), כתובות URL ורשימה מובנית, כולל הבטחה ש־`localhost` וכתובות raw לא יהפכו לכללים.
+* כללי הודעת “פרסומת נחסמה”: הפעלה/כיבוי, שקט כשהאפליקציה בחזית או כשהמסך כבוי, מרווח מינימלי בין הודעות, וקיצור דומיין ארוך לכדי שורה אחת.
 
 Lint מצא ותיקן שלוש תקלות אמיתיות: בדיקת הרשאת ההתראות לפני `notify()`, שימוש ב־`Process.waitFor(timeout, unit)` שאינו זמין ב־API 24–25, ו־API מיושן של אריח Quick Settings במכשירים ישנים. שגיאת ה־lint הרביעית בנושא `foregroundServiceType="systemExempted"` היא false positive סטטי: תיעוד Android מציין שאפליקציות VPN המשתמשות ב־`VpnService` עומדות בתנאי הסוג הזה, ולכן השגיאה מושתקת רק ברכיב השירות הרלוונטי.
 
@@ -149,13 +151,24 @@ python tools/verify_project.py
 * קובץ hosts של המערכת במצב root אובד לאחר אתחול (ה־bind mount אינו קבוע) — יש לכתוב אותו מחדש מההגדרות, או להמשיך להשתמש בסינון VPN.
 * זהו כלי למכשיר שלכם. אין להשתמש בו כדי לעקוף מסננים, בקרת הורים או מדיניות רשת המוחלות על ציוד שאינו בבעלותכם.
 
+## הודעת “פרסומת נחסמה”
+
+בכל פעם שנחסמת שאילתה של אפליקציה אחרת, מופיעה הודעה קצרה בראש המסך, למשל `פרסומת נחסמה: ads.tracker.example.com`.
+
+ההודעה אינה משתמשת בחלון צף ואינה דורשת הרשאה נוספת. היא מוצגת מהשירות שרץ בחזית עם התראה קבועה, ולא מהרקע בלבד. עם זאת:
+
+* חלק מהיצרנים (Xiaomi, Huawei, Samsung בחלק מהדגמים) מסתירים הודעות של אפליקציות שאינן על המסך — יש לאשר לאפליקציה להציג הודעות בהגדרות המערכת של המכשיר.
+* ההודעה מוגבלת לאחת לכל 4 שניות.
+* היא לא מוצגת כשמסך האפליקציה עצמה פתוח (שם יש כבר פיד פעילות חי), כשהמסך כבוי או כשהחסימה מושהית.
+* אפשר לכבות אותה ב־**הגדרות ← חסימה מתקדמת ← הודעת פרסומת נחסמה**, ולשם יש גם כפתור *הצג הודעת בדיקה* כדי לוודא שהמכשיר מציג אותה.
+
 ## מבנה הפרויקט
 
 ```
 app/src/main/java/com/adshield/app/
   AdShieldApp.kt              אפליקציה, ערוץ התראות ותזמון worker
   MainActivity.kt             מארח Compose ותהליך אישור VPN
-  core/                       EngineState, AppGraph ועוזרי תצוגה
+  core/                       EngineState, AppGraph, BlockedToastPolicy, BlockedToastNotifier ועוזרי תצוגה
   data/                       SettingsStore, StatsStore, RulesStore, BlocklistRepository,
                               AppsRepository, BackupManager
   filter/                     FilterEngine (התאמת סיומות), DohHosts (רשימת הגנת עקיפה)
@@ -165,7 +178,7 @@ app/src/main/java/com/adshield/app/
   ui/                         מסכי Dashboard, Browser, Apps, Filters, Settings, theme ורכיבים משותפים
   root/                       RootHostsManager (מצב קובץ hosts אופציונלי)
   tile/, boot/, work/         אריח Quick Settings, מקלט אתחול ו־worker לעדכון יומי
-app/src/test/java/com/adshield/app/   27 בדיקות יחידה למנות, DNS, מסננים ופענוח רשימות
+app/src/test/java/com/adshield/app/   37 בדיקות יחידה למנות, DNS, מסננים, פענוח רשימות והודעת החסימה
 app/src/main/assets/default_blocklist.txt    רשימת פתיחה מובנית
 app/src/main/res/values-iw/                  תרגום לעברית
  tools/verify_project.py                     בודק סטטי של הפרויקט ללא SDK
@@ -175,6 +188,6 @@ tools/build-windows.sh                       בנייה בפקודה אחת בא
 
 ## התקנת APK מ־GitHub
 
-הורידו את הקובץ `app-debug.apk` מעמוד ה־Release, פתחו אותו במכשיר Android ואשרו התקנה ממקור זה אם Android מבקש זאת. לאחר ההתקנה פתחו את AdShield, הפעילו את ההגנה ואשרו את הרשאת ה־VPN.
+הורידו את הקובץ `AdShield.apk` מעמוד ה־Release, פתחו אותו במכשיר Android ואשרו התקנה ממקור זה אם Android מבקש זאת. לאחר ההתקנה פתחו את AdShield, הפעילו את ההגנה ואשרו את הרשאת ה־VPN.
 
 ה־APK של Release הוא build לצורכי פיתוח וחתום במפתח debug. לפרסום בחנות או להפצה רשמית יש ליצור מפתח חתימה ייעודי ולבנות גרסת release חתומה.

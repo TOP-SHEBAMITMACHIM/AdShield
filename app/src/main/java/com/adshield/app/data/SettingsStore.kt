@@ -17,6 +17,9 @@ class SettingsStore(context: Context) {
     private val _theme = MutableStateFlow(prefs.getString(KEY_THEME, THEME_SYSTEM) ?: THEME_SYSTEM)
     val theme: StateFlow<String> = _theme.asStateFlow()
 
+    private val _blockedToast = MutableStateFlow(prefs.getBoolean(KEY_BLOCKED_TOAST, true))
+    val blockedToast: StateFlow<Boolean> = _blockedToast.asStateFlow()
+
     var dnsMode: String
         get() = prefs.getString(KEY_DNS_MODE, DNS_SYSTEM) ?: DNS_SYSTEM
         set(value) {
@@ -86,6 +89,11 @@ class SettingsStore(context: Context) {
         prefs.edit { putString(KEY_THEME, value) }
     }
 
+    fun setBlockedToast(value: Boolean) {
+        _blockedToast.value = value
+        prefs.edit { putBoolean(KEY_BLOCKED_TOAST, value) }
+    }
+
     fun isExcluded(packageName: String): Boolean = _excluded.value.contains(packageName)
 
     fun setExcluded(packageName: String, excluded: Boolean) {
@@ -130,5 +138,6 @@ class SettingsStore(context: Context) {
         private const val KEY_BROWSER_HTTPS = "browser_https_only"
         private const val KEY_BROWSER_URL = "browser_last_url"
         private const val KEY_ROOT_INSTALLED = "root_hosts_installed"
+        private const val KEY_BLOCKED_TOAST = "blocked_toast"
     }
 }

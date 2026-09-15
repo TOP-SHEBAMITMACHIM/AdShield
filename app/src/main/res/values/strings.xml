@@ -114,6 +114,12 @@
     <string name="settings_autostart_desc">Re-enable protection after the device restarts.</string>
     <string name="settings_auto_update_title">Daily list updates</string>
     <string name="settings_auto_update_desc">Download enabled blocklists once a day on Wi-Fi.</string>
+    <string name="settings_toast_title">Blocked-ad message</string>
+    <string name="settings_toast_desc">Shows a short message whenever an ad is blocked while another app is in the foreground. At most one message every few seconds, so a burst of blocked lookups cannot flood the screen. Some devices suppress messages coming from apps that are not on screen — use the test button to check yours.</string>
+    <string name="settings_toast_test">Show a test message</string>
+    <string name="settings_toast_sample_domain">ads.tracker.example.com</string>
+    <string name="toast_ad_blocked">Ad blocked: %1$s</string>
+
     <string name="settings_theme_title">Appearance</string>
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>

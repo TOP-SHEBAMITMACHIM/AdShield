@@ -20,4 +20,7 @@ object EngineState {
     val week = MutableStateFlow(List(7) { 0L })
     val vpnError = MutableStateFlow<String?>(null)
     val listsLoaded = MutableStateFlow(false)
+
+    /** True while MainActivity is on screen; the blocked-ad message stays quiet then. */
+    val appVisible = MutableStateFlow(false)
 }

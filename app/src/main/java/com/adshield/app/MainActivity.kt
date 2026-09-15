@@ -44,6 +44,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        EngineState.appVisible.value = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EngineState.appVisible.value = false
+    }
+
     private fun requestVpn() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=

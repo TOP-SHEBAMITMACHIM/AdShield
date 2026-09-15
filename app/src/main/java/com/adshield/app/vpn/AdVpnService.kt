@@ -18,6 +18,7 @@ import com.adshield.app.AdShieldApp
 import com.adshield.app.MainActivity
 import com.adshield.app.R
 import com.adshield.app.core.AppGraph
+import com.adshield.app.core.BlockedToastNotifier
 import com.adshield.app.core.EngineState
 import com.adshield.app.filter.FilterEngine
 import kotlinx.coroutines.CoroutineScope
@@ -52,6 +53,9 @@ class AdVpnService : VpnService() {
     @Volatile private var pausedUntil = 0L
     @Volatile private var observing = false
     @Volatile private var foregroundStarted = false
+    @Volatile private var toastEnabled = true
+
+    private val toastNotifier by lazy { BlockedToastNotifier(this) }
 
     private var tunnel: ParcelFileDescriptor? = null
     private var input: FileInputStream? = null
@@ -65,6 +69,7 @@ class AdVpnService : VpnService() {
     override fun onCreate() {
         super.onCreate()
         pausedUntil = runCatching { AppGraph.settings.pausedUntil }.getOrDefault(0L)
+        toastEnabled = runCatching { AppGraph.settings.blockedToast.value }.getOrDefault(true)
         runCatching { AdShieldApp.createChannels(this) }
     }
 
@@ -212,6 +217,13 @@ class AdVpnService : VpnService() {
             EngineState.todayBlocked.collectLatest {
                 delay(NOTIFICATION_THROTTLE_MS)
                 refreshNotification()
+            }
+        }
+
+        // The Settings screen can switch the blocked-ad message on and off while running.
+        scope.launch {
+            runCatching {
+                AppGraph.settings.blockedToast.collect { enabled -> toastEnabled = enabled }
             }
         }
 
@@ -401,6 +413,8 @@ class AdVpnService : VpnService() {
         val paused = pausedUntil > System.currentTimeMillis()
         if (question != null && !paused && FilterEngine.decide(question.domain) == FilterEngine.Action.BLOCK) {
             AppGraph.stats.recordBlocked(question.domain)
+            // Throttled inside the notifier, so a burst of blocked lookups cannot flood the screen.
+            toastNotifier.onBlocked(question.domain, toastEnabled)
             writeResponse(DnsMessage.nxdomain(query, question), replyFrom, replyTo, replyPort, ipv4)
             return
         }

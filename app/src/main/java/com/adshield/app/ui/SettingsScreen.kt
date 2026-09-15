@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.adshield.app.R
 import com.adshield.app.core.AppGraph
+import com.adshield.app.core.BlockedToastNotifier
 import com.adshield.app.data.BackupManager
 import com.adshield.app.data.SettingsStore
 import com.adshield.app.root.RootHostsManager
@@ -67,6 +68,7 @@ fun SettingsScreen() {
     var autoUpdate by remember { mutableStateOf(settings.autoUpdate) }
     var hijack by remember { mutableStateOf(settings.hijackResolvers) }
     var blockDoh by remember { mutableStateOf(settings.blockDohHostnames) }
+    var blockedMessage by remember { mutableStateOf(settings.blockedToast.value) }
     var theme by remember { mutableStateOf(settings.theme.value) }
     var status by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -74,7 +76,7 @@ fun SettingsScreen() {
     val versionName = remember {
         runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        }.getOrNull() ?: "1.0.0"
+        }.getOrNull() ?: "1.1.0"
     }
 
     val exportLauncher = rememberLauncherForActivityResult(
@@ -103,6 +105,7 @@ fun SettingsScreen() {
                 autoUpdate = settings.autoUpdate
                 hijack = settings.hijackResolvers
                 blockDoh = settings.blockDohHostnames
+                blockedMessage = settings.blockedToast.value
                 theme = settings.theme.value
             }
         }
@@ -202,6 +205,23 @@ fun SettingsScreen() {
                         DailyUpdateWorker.schedule(context, it)
                     }
                 )
+                ToggleRow(
+                    title = stringResource(R.string.settings_toast_title),
+                    description = stringResource(R.string.settings_toast_desc),
+                    checked = blockedMessage,
+                    onCheckedChange = {
+                        blockedMessage = it
+                        settings.setBlockedToast(it)
+                    }
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            BlockedToastNotifier(context)
+                                .showSample(context.getString(R.string.settings_toast_sample_domain))
+                        }
+                    ) { Text(stringResource(R.string.settings_toast_test)) }
+                }
             }
         }
 
